@@ -1,25 +1,25 @@
-import nowPlaying from "../requests/nowPlaying";
-import { removeSkeletonCards, renderSkeletonCards } from "./skeleton";
-import { Movie } from "../interfaces/movie";
-import { Movies } from "../models/movies";
+import nowPlaying from '../requests/nowPlaying';
+import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
+import { Movie } from '../types/movie';
+import { Movies } from '../models/movies';
 
-export default async function renderNowPlaying() {
-    const nowPlayingWrapper = document.querySelector('[data-now-playing]')!;
+const moviesModel = new Movies();
 
-    renderSkeletonCards(nowPlayingWrapper);
+export default async function render(pagenumber?: number) {
+    const nowPlayingWrapper = document.querySelector('[data-movies-list]')!;
+    renderSkeletonCards(nowPlayingWrapper, 20);
 
     try {
-        const nowPlayingResponse = await nowPlaying();
+        const nowPlayingResponse = await nowPlaying(pagenumber);
 
-        if( !nowPlayingResponse.ok ) return false;
-        
-        const response =  await nowPlayingResponse.json();
+        if (!nowPlayingResponse.ok) return false;
+
+        const response = await nowPlayingResponse.json();
 
         removeSkeletonCards(nowPlayingWrapper);
         const data = response.results as Movie[];
-        const movies = new Movies(data);
-        nowPlayingWrapper.append(...movies.moviesList);
-
+        moviesModel.buildMovies(data);
+        nowPlayingWrapper.append(...moviesModel.getMovieList());
     } catch (error) {
         console.error(error);
     }

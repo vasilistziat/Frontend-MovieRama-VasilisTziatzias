@@ -13,13 +13,13 @@ export default {
             tsconfig: 'src/ts/tsconfig.json',
             sourceMap: false
         }),
-        scss({ 
+        scss({
             name: 'output.css',
             fileName: 'styles.css',
             watch: ['src/scss'],
             output: function (styles, styleNodes) {
-                writeFileSync('dist/css/bundle.css', styles)
-            },
+                writeFileSync('dist/css/bundle.css', styles);
+            }
         })
-    ]   
+    ]
 };

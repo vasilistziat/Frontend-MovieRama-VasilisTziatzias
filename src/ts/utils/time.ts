@@ -4,4 +4,4 @@ export const getDuration = (time: number) => {
     const minutes = (hours - roundedHours) * 60;
     const roundedMinutes = Math.round(minutes);
     return `${roundedHours}h ${roundedMinutes}m`;
-}
+};

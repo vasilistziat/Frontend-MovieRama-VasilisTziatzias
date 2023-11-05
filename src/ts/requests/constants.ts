@@ -5,7 +5,7 @@ export const paths = {
     NowPlaying: '/movie/now_playing',
     MovieList: '/genre/movie/list',
     Movie: '/movie'
-}
+};
 
 export enum Endpoints {
     NowPlaying,

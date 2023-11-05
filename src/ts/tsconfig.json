@@ -1,19 +1,19 @@
 {
-	"compilerOptions": {
-		"target": "ES2015",
-		"module": "esnext",
-		"strict": true,
-		"importHelpers": true,
-		"moduleResolution": "node",
-		"allowJs": true,
-		"skipLibCheck": true,
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"declaration": false,
-		"rootDir": ".",
-		"baseUrl": ".",
-		"lib": ["ES2015", "dom", "dom.iterable", "scripthost"]
-	},
-	"include": ["./**/*.ts"],
-	"exclude": ["node_modules"]
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "esnext",
+        "strict": true,
+        "importHelpers": true,
+        "moduleResolution": "node",
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "declaration": false,
+        "rootDir": ".",
+        "baseUrl": ".",
+        "lib": ["ES2015", "dom", "dom.iterable", "scripthost"]
+    },
+    "include": ["./**/*.ts"],
+    "exclude": ["node_modules"]
 }
