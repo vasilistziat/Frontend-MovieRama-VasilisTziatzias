@@ -83,7 +83,7 @@
     };
 
     const imageDefaultUrl = 'http://image.tmdb.org/t/p/w300_and_h450_bestv2';
-    const imageBackdropDefaultUrl = 'http://image.tmdb.org/t/p/w1920_and_h800_multi_faces/';
+    const imageBackdropDefaultUrl = 'http://image.tmdb.org/t/p/w1920_and_h800_multi_faces';
 
     function getMovie(movieId) {
         return __awaiter(this, void 0, void 0, function* () {
