@@ -1,0 +1,65 @@
+import { Movie } from 'types/movie';
+import { getPoster } from './media';
+import { stringToHtml } from 'utils/dom';
+import { getMovie } from 'requests/movie';
+import { buildMovieInfobox, closeInfobox } from './infoBox';
+
+export const buildMovies = (moviesData: Movie[]) => {
+    const moviesList: Element[] = [];
+    moviesData.forEach((movie) => {
+        const rating = (movie.vote_average / 10) * 100;
+        const poster = getPoster(movie).poster;
+        const movieDate = new Date(movie.release_date);
+        const htmlString = `
+            <article class="movie-card" data-movie-id="${movie.id}">
+                <div class="loader"><i class="fa-solid fa-circle-notch"></i></div>
+                <div class="movie-card__details">
+                    <div class="movie-rating">
+                        <div class="movie-rating__stars">
+                            <i class="fa-regular fa-star empty"></i>
+                            <i class="fa-solid fa-star full" style="width: ${rating}%"></i>
+                        </div>
+                    </div>
+                    ${poster.image}
+                    <div class="movie-info">
+                        <h3>${movie.title} (${movieDate.getFullYear()})</h3>
+                        <span class="date">${movie.release_date}</span>
+                    </div>
+                </div>
+            </article>
+        `;
+        const movieHtml = stringToHtml(htmlString);
+        moviesList.push(movieHtml);
+    });
+
+    return moviesList;
+};
+
+export const handleMovieClick = async (event: Event) => {
+    const currentMovie = event.target as Element;
+    const movieInfoboxElement = document.getElementById('movie-details');
+    if (!currentMovie || !currentMovie.getAttribute('data-movie-id')) return;
+
+    currentMovie.classList.add('loading');
+
+    const movieDetailsResponse = await getMovie(
+        currentMovie.getAttribute('data-movie-id')!
+    );
+    if (!movieDetailsResponse.ok) return false;
+
+    const response = await movieDetailsResponse.json();
+    const infoboxContent = await buildMovieInfobox(response);
+
+    movieInfoboxElement?.append(infoboxContent);
+    movieInfoboxElement?.classList.add('is-active');
+    document.querySelector('html')?.classList.add('is-infobox-active');
+    currentMovie.classList.remove('loading');
+    document.addEventListener('keydown', handleEscButton);
+};
+
+const handleEscButton = (event: KeyboardEvent) => {
+    if (event.code == 'Escape') {
+        closeInfobox();
+        document.removeEventListener('keydown', handleEscButton);
+    }
+};

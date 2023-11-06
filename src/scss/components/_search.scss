@@ -1,0 +1,42 @@
+.section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column-reverse;
+    gap: 24px;
+    margin-bottom: 28px;
+
+    @media screen and (min-width: 1024px) {
+        flex-direction: row;
+    }
+
+    h2 {
+        margin: 0;
+    }
+
+    .searc-area {
+        width: 100%;
+
+        @media screen and (min-width: 1024px) {
+            width: auto;
+        }
+
+        input {
+            background: #404040;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 18px;
+            color: #c8c8c8;
+            width: 100%;
+
+            @media screen and (min-width: 1024px) {
+                width: auto;
+            }
+
+            &:focus {
+                outline: none;
+                border: 1px solid $primary_color;
+            }
+        }
+    }
+}

@@ -40,7 +40,8 @@
     const paths = {
         NowPlaying: '/movie/now_playing',
         MovieList: '/genre/movie/list',
-        Movie: '/movie'
+        Movie: '/movie',
+        Search: '/search/movie'
     };
     var Endpoints;
     (function (Endpoints) {
@@ -50,7 +51,7 @@
 
     function nowPlaying(pageNumber = 1) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.NowPlaying}?api_key=${apiKey}&page=${pageNumber}&language=en`, {
+            const response = yield fetch(`${defaultUrl}${paths.NowPlaying}?api_key=${apiKey}&page=${pageNumber}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -76,18 +77,12 @@
             .forEach((skeleton) => skeleton.remove());
     };
 
-    const stringToHtml = function (htmlString) {
-        const parser = new DOMParser();
-        return parser.parseFromString(htmlString, 'text/html').body
-            .firstChild;
-    };
-
     const imageDefaultUrl = 'http://image.tmdb.org/t/p/w300_and_h450_bestv2';
     const imageBackdropDefaultUrl = 'http://image.tmdb.org/t/p/w1920_and_h800_multi_faces';
 
     function getMovie(movieId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.Movie}/${movieId}?api_key=${apiKey}&language=en`, {
+            const response = yield fetch(`${defaultUrl}${paths.Movie}/${movieId}?api_key=${apiKey}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -98,7 +93,7 @@
     }
     function getVideos(movieId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.Movie}/${movieId}/videos?api_key=${apiKey}&language=en`, {
+            const response = yield fetch(`${defaultUrl}${paths.Movie}/${movieId}/videos?api_key=${apiKey}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -108,6 +103,52 @@
         });
     }
 
+    const getTrailer = (movie) => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield getVideos(movie.id);
+        if (!response.ok)
+            return false;
+        const videosResponse = (yield response.json());
+        const trailers = videosResponse.results.filter((video) => video.type == 'Trailer');
+        if (!!videosResponse.results.length && !!trailers.length) {
+            const trailersString = [];
+            trailers.forEach((trailer) => {
+                trailersString.push(`
+                <div class="responsive-iframe-video">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/${trailer.key}" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            `);
+            });
+            return trailersString.join('');
+        }
+        else {
+            return 'No trailer found';
+        }
+    });
+    const getPoster = (movie) => {
+        return {
+            poster: {
+                image: `<img src="${getImageSrc(movie.poster_path)}" alt="${movie.title}" />`,
+                src: getImageSrc(movie.poster_path)
+            },
+            backdrop: {
+                image: `<img src="${getImageSrc(movie.backdrop_path, true)}" alt="${movie.title}" />`,
+                src: getImageSrc(movie.backdrop_path, true)
+            }
+        };
+    };
+    const getImageSrc = (imagePath, backdrop = false) => {
+        let src = 'dist/assets/images/no-file-found.jpg';
+        if (imagePath)
+            src = `${backdrop ? imageBackdropDefaultUrl : imageDefaultUrl}/${imagePath}`;
+        return src;
+    };
+
+    const stringToHtml = function (htmlString) {
+        const parser = new DOMParser();
+        return parser.parseFromString(htmlString, 'text/html').body
+            .firstChild;
+    };
+
     const getDuration = (time) => {
         const hours = time / 60;
         const roundedHours = Math.floor(hours);
@@ -116,200 +157,142 @@
         return `${roundedHours}h ${roundedMinutes}m`;
     };
 
-    class Movies {
-        constructor() {
-            this.buildMovies = (moviesData) => {
-                moviesData.forEach((movie) => {
-                    const rating = (movie.vote_average / 10) * 100;
-                    const poster = this.buildPoster(movie).poster;
-                    const movieDate = new Date(movie.release_date);
-                    const htmlString = `
-                <article class="movie-card" data-movie-id="${movie.id}">
-                    <div class="loader"><i class="fa-solid fa-circle-notch"></i></div>
-                    <div class="movie-card__details">
-                        <div class="movie-rating">
-                            <div class="movie-rating__stars">
-                                <i class="fa-regular fa-star empty"></i>
-                                <i class="fa-solid fa-star full" style="width: ${rating}%"></i>
-                            </div>
-                        </div>
-                        ${poster.image}
-                        <div class="movie-info">
-                            <h3>${movie.title} (${movieDate.getFullYear()})</h3>
-                            <span class="date">${movie.release_date}</span>
-                        </div>
+    const movieTabs = ['Trailer', 'Reviews', 'Recommended'];
+    const buildMovieInfobox = (movie) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const movieBackdrop = getPoster(movie).backdrop;
+        const moviePoster = getPoster(movie).poster;
+        const movieDate = new Date(movie.release_date);
+        const htmlString = `
+        <div class="movie-infobox">
+            <div class="container container--sm">
+                <div class="movie-infobox__header" style="background-image: url(${getImageSrc(movieBackdrop.src)});" data-movie-infobox-header>
+                    <div class="movie-poster">
+                        ${moviePoster.image}
                     </div>
-                </article>
-            `;
-                    const movieHtml = stringToHtml(htmlString);
-                    this.moviesList.push(movieHtml);
-                });
-            };
-            this.getMovieList = () => {
-                const list = this.moviesList;
-                this.moviesList = [];
-                return list;
-            };
-            this.handleMovieClick = (event) => __awaiter(this, void 0, void 0, function* () {
-                var _a;
-                const currentMovie = event.target;
-                const movieInfoboxElement = document.getElementById('movie-details');
-                if (!currentMovie || !currentMovie.getAttribute('data-movie-id'))
-                    return;
-                currentMovie.classList.add('loading');
-                const movieDetailsResponse = yield getMovie(currentMovie.getAttribute('data-movie-id'));
-                if (!movieDetailsResponse.ok)
-                    return false;
-                const response = yield movieDetailsResponse.json();
-                const infoboxContent = yield this.buildMovieInfobox(response);
-                movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.append(infoboxContent);
-                movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.classList.add('is-active');
-                (_a = document.querySelector('html')) === null || _a === void 0 ? void 0 : _a.classList.add('is-infobox-active');
-                currentMovie.classList.remove('loading');
-                document.addEventListener('keydown', this.handleEscButton);
-            });
-            this.handleEscButton = (event) => {
-                if (event.code == 'Escape') {
-                    this.closeInfobox();
-                    document.removeEventListener('keydown', this.handleEscButton);
-                }
-            };
-            this.buildMovieInfobox = (movie) => __awaiter(this, void 0, void 0, function* () {
-                var _b;
-                const movieBackdrop = this.buildPoster(movie).backdrop;
-                const moviePoster = this.buildPoster(movie).poster;
-                const movieDate = new Date(movie.release_date);
-                const htmlString = `
-            <div class="movie-infobox">
-                <div class="container container--sm">
-                    <div class="movie-infobox__header" style="background-image: url(${this.getImageSrc(movieBackdrop.src)});" data-movie-infobox-header>
-                        <div class="movie-poster">
-                            ${moviePoster.image}
-                        </div>
-                        <div class="movie-header-info">
-                            <h2>${movie.title} <span class="year">(${movieDate.getFullYear()})</span></h2>
-                            <div class="movie-meta">
-                                <span>${movieDate.toDateString()}</span>
-                                <span> • </span>
-                                <span>${(_b = movie.genres) === null || _b === void 0 ? void 0 : _b.map((x) => x.name).join(', ')}</span>
-                                <span> • </span>
-                                <span>${getDuration(movie.runtime)}</span>
-                            </p>
-                            <p>${movie.overview}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="movie-infobox__content">
-                    <div class="tabs-header" data-movie-tab-actions></div>
-                    <div class="tabs-body">
-                        <div class="tab-content tab-content--trailers" data-tab-index="1">
-                            ${yield this.getTrailer(movie)}
-                        </div>
+                    <div class="movie-header-info">
+                        <h2>${movie.title} <span class="year">(${movieDate.getFullYear()})</span></h2>
+                        <div class="movie-meta">
+                            <span>${movieDate.toDateString()}</span>
+                            <span> • </span>
+                            <span>${(_a = movie.genres) === null || _a === void 0 ? void 0 : _a.map((x) => x.name).join(', ')}</span>
+                            <span> • </span>
+                            <span>${getDuration(movie.runtime)}</span>
+                        </p>
+                        <p>${movie.overview}</p>
                     </div>
                 </div>
             </div>
-        `;
-                const infobox = stringToHtml(htmlString);
-                this.renderClose(infobox);
-                this.renderTabActions(infobox);
-                return infobox;
-            });
-            this.renderClose = (element) => {
-                var _a;
-                const closeInfobox = `
-            <button type="button" class="close-button"><i class="fa-solid fa-xmark"></i></button>
-        `;
-                const closeInfoboxElement = stringToHtml(closeInfobox);
-                closeInfoboxElement.addEventListener('click', () => {
-                    this.closeInfobox();
-                });
-                (_a = element === null || element === void 0 ? void 0 : element.querySelector('[data-movie-infobox-header]')) === null || _a === void 0 ? void 0 : _a.append(closeInfoboxElement);
-            };
-            this.renderTabActions = (element) => {
-                var _a;
-                const tabs = [];
-                this.movieTabs.forEach((tab, index) => {
-                    const htmlString = `
-                <button type="button" ${index == 0 ? 'class="active"' : ''} data-tab-action>${tab}</button>
-            `;
-                    const tabAction = stringToHtml(htmlString);
-                    tabAction.addEventListener('click', (event) => {
-                        var _a;
-                        (_a = element
-                            .querySelectorAll('[data-tab-action]')) === null || _a === void 0 ? void 0 : _a.forEach((element) => element.classList.remove('active'));
-                        event.target.classList.add('active');
-                    });
-                    tabs.push(tabAction);
-                });
-                (_a = element.querySelector('[data-movie-tab-actions]')) === null || _a === void 0 ? void 0 : _a.append(...tabs);
-            };
-            this.getTrailer = (movie) => __awaiter(this, void 0, void 0, function* () {
-                const response = yield getVideos(movie.id);
-                if (!response.ok)
-                    return false;
-                const videosResponse = (yield response.json());
-                const trailers = videosResponse.results.filter((video) => video.type == 'Trailer');
-                if (!!videosResponse.results.length && !!trailers.length) {
-                    const trailersString = [];
-                    trailers.forEach((trailer) => {
-                        trailersString.push(`
-                    <div class="responsive-iframe-video">
-                        <iframe width="560" height="315" src="https://www.youtube.com/embed/${trailer.key}" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <div class="movie-infobox__content">
+                <div class="tabs-header" data-movie-tab-actions></div>
+                <div class="tabs-body">
+                    <div class="tab-content tab-content--trailers" data-tab-index="1">
+                        ${yield getTrailer(movie)}
                     </div>
-                `);
-                    });
-                    return trailersString.join('');
-                }
-                else {
-                    return 'No trailer found';
-                }
-            });
-            this.buildPoster = (movie) => {
-                return {
-                    poster: {
-                        image: `<img src="${this.getImageSrc(movie.poster_path)}" alt="${movie.title}" />`,
-                        src: this.getImageSrc(movie.poster_path)
-                    },
-                    backdrop: {
-                        image: `<img src="${this.getImageSrc(movie.backdrop_path, true)}" alt="${movie.title}" />`,
-                        src: this.getImageSrc(movie.backdrop_path, true)
-                    }
-                };
-            };
-            this.closeInfobox = () => {
+                </div>
+            </div>
+        </div>
+    `;
+        const infobox = stringToHtml(htmlString);
+        renderClose(infobox);
+        renderTabActions(infobox);
+        return infobox;
+    });
+    const renderClose = (element) => {
+        var _a;
+        const closeInfoboxHtml = `
+        <button type="button" class="close-button"><i class="fa-solid fa-xmark"></i></button>
+    `;
+        const closeInfoboxElement = stringToHtml(closeInfoboxHtml);
+        closeInfoboxElement.addEventListener('click', () => {
+            closeInfobox();
+        });
+        (_a = element === null || element === void 0 ? void 0 : element.querySelector('[data-movie-infobox-header]')) === null || _a === void 0 ? void 0 : _a.append(closeInfoboxElement);
+    };
+    const renderTabActions = (element) => {
+        var _a;
+        const tabs = [];
+        movieTabs.forEach((tab, index) => {
+            const htmlString = `
+            <button type="button" ${index == 0 ? 'class="active"' : ''} data-tab-action>${tab}</button>
+        `;
+            const tabAction = stringToHtml(htmlString);
+            tabAction.addEventListener('click', (event) => {
                 var _a;
-                const movieInfoboxElement = document.getElementById('movie-details');
-                if (movieInfoboxElement) {
-                    movieInfoboxElement.classList.remove('is-active');
-                    (_a = document
-                        .querySelector('html')) === null || _a === void 0 ? void 0 : _a.classList.remove('is-infobox-active');
-                    setTimeout(() => {
-                        movieInfoboxElement.innerHTML = '';
-                    }, 400);
-                }
-            };
-            this.getImageSrc = (imagePath, backdrop = false) => {
-                let src = 'dist/assets/images/no-file-found.jpg';
-                if (imagePath)
-                    src = `${backdrop ? imageBackdropDefaultUrl : imageDefaultUrl}/${imagePath}`;
-                return src;
-            };
-            this.moviesListElements = [];
-            this.moviesList = [];
-            this.movieTabs = ['Trailer', 'Reviews', 'Recommended'];
-            document.addEventListener('click', (event) => {
-                document
-                    .querySelectorAll('[data-movie-id]')
-                    .forEach((targetElement) => {
-                    if (targetElement === event.target) {
-                        this.handleMovieClick(event);
-                    }
-                });
+                (_a = element
+                    .querySelectorAll('[data-tab-action]')) === null || _a === void 0 ? void 0 : _a.forEach((element) => element.classList.remove('active'));
+                event.target.classList.add('active');
             });
+            tabs.push(tabAction);
+        });
+        (_a = element.querySelector('[data-movie-tab-actions]')) === null || _a === void 0 ? void 0 : _a.append(...tabs);
+    };
+    const closeInfobox = () => {
+        var _a;
+        const movieInfoboxElement = document.getElementById('movie-details');
+        if (movieInfoboxElement) {
+            movieInfoboxElement.classList.remove('is-active');
+            (_a = document.querySelector('html')) === null || _a === void 0 ? void 0 : _a.classList.remove('is-infobox-active');
+            setTimeout(() => {
+                movieInfoboxElement.innerHTML = '';
+            }, 400);
         }
-    }
+    };
 
-    const moviesModel = new Movies();
+    const buildMovies = (moviesData) => {
+        const moviesList = [];
+        moviesData.forEach((movie) => {
+            const rating = (movie.vote_average / 10) * 100;
+            const poster = getPoster(movie).poster;
+            const movieDate = new Date(movie.release_date);
+            const htmlString = `
+            <article class="movie-card" data-movie-id="${movie.id}">
+                <div class="loader"><i class="fa-solid fa-circle-notch"></i></div>
+                <div class="movie-card__details">
+                    <div class="movie-rating">
+                        <div class="movie-rating__stars">
+                            <i class="fa-regular fa-star empty"></i>
+                            <i class="fa-solid fa-star full" style="width: ${rating}%"></i>
+                        </div>
+                    </div>
+                    ${poster.image}
+                    <div class="movie-info">
+                        <h3>${movie.title} (${movieDate.getFullYear()})</h3>
+                        <span class="date">${movie.release_date}</span>
+                    </div>
+                </div>
+            </article>
+        `;
+            const movieHtml = stringToHtml(htmlString);
+            moviesList.push(movieHtml);
+        });
+        return moviesList;
+    };
+    const handleMovieClick = (event) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const currentMovie = event.target;
+        const movieInfoboxElement = document.getElementById('movie-details');
+        if (!currentMovie || !currentMovie.getAttribute('data-movie-id'))
+            return;
+        currentMovie.classList.add('loading');
+        const movieDetailsResponse = yield getMovie(currentMovie.getAttribute('data-movie-id'));
+        if (!movieDetailsResponse.ok)
+            return false;
+        const response = yield movieDetailsResponse.json();
+        const infoboxContent = yield buildMovieInfobox(response);
+        movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.append(infoboxContent);
+        movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.classList.add('is-active');
+        (_a = document.querySelector('html')) === null || _a === void 0 ? void 0 : _a.classList.add('is-infobox-active');
+        currentMovie.classList.remove('loading');
+        document.addEventListener('keydown', handleEscButton);
+    });
+    const handleEscButton = (event) => {
+        if (event.code == 'Escape') {
+            closeInfobox();
+            document.removeEventListener('keydown', handleEscButton);
+        }
+    };
+
     function render(pagenumber) {
         return __awaiter(this, void 0, void 0, function* () {
             const nowPlayingWrapper = document.querySelector('[data-movies-list]');
@@ -321,8 +304,8 @@
                 const response = yield nowPlayingResponse.json();
                 removeSkeletonCards(nowPlayingWrapper);
                 const data = response.results;
-                moviesModel.buildMovies(data);
-                nowPlayingWrapper.append(...moviesModel.getMovieList());
+                const buildMoviesList = buildMovies(data);
+                nowPlayingWrapper.append(...buildMoviesList);
             }
             catch (error) {
                 console.error(error);
@@ -330,29 +313,121 @@
         });
     }
 
+    function getSearch(query, pageNumber = 1, signal) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(`${defaultUrl}${paths.Search}?query=${query}&page=${pageNumber}&api_key=${apiKey}&language=en-US`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                signal
+            });
+            return response;
+        });
+    }
+
+    let abortController = new AbortController();
+    const moviesListElement = document.querySelector('[data-movies-list]');
+    const movieList = document.querySelector('[data-movies-list]');
+    const searchInput = document.querySelector('[data-movie-search]');
+    const initSearch = () => {
+        searchInput === null || searchInput === void 0 ? void 0 : searchInput.addEventListener('input', searchListener);
+    };
+    const renderSearch = (results, pageNumber = 1) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!movieList || !searchInput)
+            return;
+        renderSkeletonCards(movieList, 5);
+        try {
+            let data = [];
+            if (!results) {
+                const searchResponse = yield getResults(searchInput.value, pageNumber);
+                if (searchResponse.page <= searchResponse.total_pages) {
+                    moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.removeAttribute('data-no-found');
+                    data = searchResponse.results;
+                }
+                else {
+                    moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-no-found', 'true');
+                }
+            }
+            else {
+                data = results;
+            }
+            const buildMoviesList = buildMovies(data);
+            removeSkeletonCards(movieList);
+            movieList.append(...buildMoviesList);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    });
+    const searchListener = (event) => __awaiter(void 0, void 0, void 0, function* () {
+        const terms = (event === null || event === void 0 ? void 0 : event.target).value;
+        if (terms != '') {
+            abortController.abort();
+            abortController = new AbortController();
+            moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-results', 'search');
+            const response = yield getResults(terms, 1, abortController.signal);
+            if (response) {
+                if (movieList)
+                    movieList.innerHTML = '';
+                if (response.page <= response.total_pages) {
+                    renderSearch(response.results);
+                    moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-page', '1');
+                }
+            }
+        }
+        else {
+            if (moviesListElement)
+                moviesListElement.innerHTML = '';
+            moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-results', 'nowPlaying');
+            moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.removeAttribute('data-no-found');
+            render();
+        }
+    });
+    const getResults = (terms, pageNumber, signal) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const response = yield getSearch(terms, pageNumber, signal);
+            if (!response.ok)
+                return false;
+            const searchResponse = yield response.json();
+            return searchResponse;
+        }
+        catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(error);
+            }
+        }
+    });
+
     function initInfiniteScroll() {
         const options = {
             root: null,
             rootMargin: '0px',
-            threshold: 0.9
+            threshold: 0.75
         };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
-                // const hasData = !document.getElementById('noResultsFound');
                 if (entry.isIntersecting) {
-                    // if (searchInput.value) {
-                    //     searchForMovies(searchInput.value);
-                    // } else {
-                    //     getNowPlayingMovies();
-                    // }
                     const moviesListElement = document.querySelector('[data-movies-list]');
-                    const moviesPage = moviesListElement &&
-                        moviesListElement.getAttribute('data-movies-page')
+                    if (!moviesListElement)
+                        return;
+                    const moviesPage = moviesListElement.getAttribute('data-movies-page')
                         ? moviesListElement.getAttribute('data-movies-page')
                         : '1';
+                    const pageResults = moviesListElement.getAttribute('data-movies-results')
+                        ? moviesListElement.getAttribute('data-movies-results')
+                        : 'nowPlaying';
+                    const noFound = moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.getAttribute('data-no-found');
                     const newMoviePage = parseInt(moviesPage) + 1;
                     moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-page', newMoviePage.toString());
-                    render(newMoviePage);
+                    if (!!noFound)
+                        return;
+                    if (pageResults === 'nowPlaying') {
+                        render(newMoviePage);
+                    }
+                    else {
+                        renderSearch(undefined, newMoviePage);
+                    }
                 }
             });
         }, options);
@@ -360,7 +435,15 @@
     }
 
     //Rollup need this in order to watch scss
-    initInfiniteScroll();
     render();
+    initSearch();
+    initInfiniteScroll();
+    document.addEventListener('click', (event) => {
+        document.querySelectorAll('[data-movie-id]').forEach((targetElement) => {
+            if (targetElement === event.target) {
+                handleMovieClick(event);
+            }
+        });
+    });
 
 }));

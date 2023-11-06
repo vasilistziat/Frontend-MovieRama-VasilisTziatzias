@@ -1,9 +1,7 @@
 import nowPlaying from '../requests/nowPlaying';
 import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
 import { Movie } from '../types/movie';
-import { Movies } from '../models/movies';
-
-const moviesModel = new Movies();
+import { buildMovies } from './movies/buildList';
 
 export default async function render(pagenumber?: number) {
     const nowPlayingWrapper = document.querySelector('[data-movies-list]')!;
@@ -18,8 +16,8 @@ export default async function render(pagenumber?: number) {
 
         removeSkeletonCards(nowPlayingWrapper);
         const data = response.results as Movie[];
-        moviesModel.buildMovies(data);
-        nowPlayingWrapper.append(...moviesModel.getMovieList());
+        const buildMoviesList = buildMovies(data);
+        nowPlayingWrapper.append(...buildMoviesList);
     } catch (error) {
         console.error(error);
     }

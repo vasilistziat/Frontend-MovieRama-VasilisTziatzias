@@ -3,14 +3,14 @@ import scss from 'rollup-plugin-scss';
 import { writeFileSync } from 'fs';
 
 export default {
-    input: 'src/ts/main.ts',
+    input: 'src/main.ts',
     output: {
         dir: 'dist/js',
         format: 'umd'
     },
     plugins: [
         typescript({
-            tsconfig: 'src/ts/tsconfig.json',
+            tsconfig: 'src/tsconfig.json',
             sourceMap: false
         }),
         scss({
