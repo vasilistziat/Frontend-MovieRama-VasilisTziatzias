@@ -14,6 +14,8 @@ export const buildMovieInfobox = async (movie: Movie) => {
     const movieBackdrop = getMovieAssets(movie).backdrop;
     const moviePoster = getMovieAssets(movie).poster;
     const movieDate = new Date(movie.release_date);
+    const trailers = await getTrailer(movie);
+    const rating = (movie.vote_average / 10) * 100;
 
     const getReviewsresponse = await getReviews(movie.id);
     if (!getReviewsresponse.ok) return false;
@@ -22,8 +24,6 @@ export const buildMovieInfobox = async (movie: Movie) => {
     const getSimilarResponse = await getSimilar(movie.id);
     if (!getSimilarResponse.ok) return false;
     const similarResponse = await getSimilarResponse.json();
-
-    const trailers = await getTrailer(movie);
 
     const htmlString = `
         <div class="movie-infobox">
@@ -38,6 +38,18 @@ export const buildMovieInfobox = async (movie: Movie) => {
                         <h2>${
                             movie.title
                         } <span class="year">(${movieDate.getFullYear()})</span></h2>
+                        <div class="movie-rating">
+                            <div class="movie-rating__stars">
+                                <i class="fa-regular fa-star empty"></i>
+                                <i class="fa-solid fa-star full" style="width: ${rating}%"></i>
+                            </div>
+                            <span class="movie-rating__average">${movie.vote_average.toFixed(
+                                1
+                            )}</span>
+                            <span class="movie-rating__number">(${
+                                movie.vote_count
+                            })</span>
+                        </div>
                         <div class="movie-meta">
                             <span>${movieDate.toDateString()}</span>
                             <span> • </span>
@@ -46,7 +58,7 @@ export const buildMovieInfobox = async (movie: Movie) => {
                                 .join(', ')}</span>
                             <span> • </span>
                             <span>${getDuration(movie.runtime)}</span>
-                        </p>
+                        </div>
                         <p>${movie.overview}</p>
                     </div>
                 </div>

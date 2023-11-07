@@ -5,7 +5,7 @@ export const paths = {
     nowPlaying: '/movie/now_playing',
     movie: '/movie',
     search: '/search/movie',
-    genders: '/genre/movie/list'
+    genres: '/genre/movie/list'
 };
 
 export enum Endpoints {

@@ -41,7 +41,7 @@
         nowPlaying: '/movie/now_playing',
         movie: '/movie',
         search: '/search/movie',
-        genders: '/genre/movie/list'
+        genres: '/genre/movie/list'
     };
     var Endpoints;
     (function (Endpoints) {
@@ -266,6 +266,8 @@
         const movieBackdrop = getMovieAssets(movie).backdrop;
         const moviePoster = getMovieAssets(movie).poster;
         const movieDate = new Date(movie.release_date);
+        const trailers = yield getTrailer(movie);
+        const rating = (movie.vote_average / 10) * 100;
         const getReviewsresponse = yield getReviews(movie.id);
         if (!getReviewsresponse.ok)
             return false;
@@ -274,7 +276,6 @@
         if (!getSimilarResponse.ok)
             return false;
         const similarResponse = yield getSimilarResponse.json();
-        const trailers = yield getTrailer(movie);
         const htmlString = `
         <div class="movie-infobox">
             <div class="container container--sm">
@@ -284,13 +285,21 @@
                     </div>
                     <div class="movie-header-info">
                         <h2>${movie.title} <span class="year">(${movieDate.getFullYear()})</span></h2>
+                        <div class="movie-rating">
+                            <div class="movie-rating__stars">
+                                <i class="fa-regular fa-star empty"></i>
+                                <i class="fa-solid fa-star full" style="width: ${rating}%"></i>
+                            </div>
+                            <span class="movie-rating__average">${movie.vote_average.toFixed(1)}</span>
+                            <span class="movie-rating__number">(${movie.vote_count})</span>
+                        </div>
                         <div class="movie-meta">
                             <span>${movieDate.toDateString()}</span>
                             <span> • </span>
                             <span>${(_a = movie.genres) === null || _a === void 0 ? void 0 : _a.map((x) => x.name).join(', ')}</span>
                             <span> • </span>
                             <span>${getDuration(movie.runtime)}</span>
-                        </p>
+                        </div>
                         <p>${movie.overview}</p>
                     </div>
                 </div>
@@ -356,9 +365,9 @@
         }
     };
 
-    function getGenders() {
+    function getGenres() {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.genders}?api_key=${apiKey}&language=en-US`, {
+            const response = yield fetch(`${defaultUrl}${paths.genres}?api_key=${apiKey}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -368,15 +377,19 @@
         });
     }
 
-    let gendersList = [];
+    let genresList = [];
     const buildMovies = (moviesData) => __awaiter(void 0, void 0, void 0, function* () {
         const moviesList = [];
-        if (!gendersList.length)
-            gendersList = yield getGendersList();
+        if (!genresList.length)
+            genresList = yield getGenresList();
         moviesData.forEach((movie) => {
             const rating = (movie.vote_average / 10) * 100;
             const poster = getMovieAssets(movie).poster;
             const movieDate = new Date(movie.release_date);
+            const movieGenres = genresList
+                .filter((genre) => movie.genre_ids.includes(genre.id))
+                .map((x) => x.name)
+                .join(' • ');
             const htmlString = `
             <article class="movie-card" data-movie-id="${movie.id}">
                 <div class="loader"><i class="fa-solid fa-circle-notch"></i></div>
@@ -391,8 +404,9 @@
                     ${poster.image}
                     <div class="movie-info">
                         <h3>${movie.title} ${movie.release_date != ''
-            ? `(${movieDate.getFullYear()})`
+            ? `<span>(${movieDate.getFullYear()})<span>`
             : ''}</h3>
+                        <span class="genres">${movieGenres}</span>
                         <span class="date">${movie.release_date}</span>
                     </div>
                 </div>
@@ -431,12 +445,12 @@
             document.removeEventListener('keydown', handleEscButton);
         }
     };
-    const getGendersList = () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield getGenders();
+    const getGenresList = () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield getGenres();
         if (!response.ok)
             return false;
-        const genderResponse = yield response.json();
-        return genderResponse.genres;
+        const genreResponse = yield response.json();
+        return genreResponse.genres;
     });
 
     function renderMovies(pagenumber) {

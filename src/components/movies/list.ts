@@ -3,18 +3,22 @@ import { getMovieAssets } from './media';
 import { stringToHtml } from 'utils/dom';
 import { getMovie } from 'api/movie';
 import { buildMovieInfobox, closeInfobox } from './infoBox';
-import { getGenders } from 'api/genders';
+import { getGenres } from 'api/genres';
 
-let gendersList: MovieGenres[] = [];
+let genresList: MovieGenres[] = [];
 
 export const buildMovies = async (moviesData: Movie[]) => {
     const moviesList: Element[] = [];
-    if (!gendersList.length) gendersList = await getGendersList();
+    if (!genresList.length) genresList = await getGenresList();
 
     moviesData.forEach((movie) => {
         const rating = (movie.vote_average / 10) * 100;
         const poster = getMovieAssets(movie).poster;
         const movieDate = new Date(movie.release_date);
+        const movieGenres = genresList
+            .filter((genre) => movie.genre_ids.includes(genre.id))
+            .map((x) => x.name)
+            .join(' • ');
 
         const htmlString = `
             <article class="movie-card" data-movie-id="${movie.id}">
@@ -33,9 +37,10 @@ export const buildMovies = async (moviesData: Movie[]) => {
                     <div class="movie-info">
                         <h3>${movie.title} ${
                             movie.release_date != ''
-                                ? `(${movieDate.getFullYear()})`
+                                ? `<span>(${movieDate.getFullYear()})<span>`
                                 : ''
                         }</h3>
+                        <span class="genres">${movieGenres}</span>
                         <span class="date">${movie.release_date}</span>
                     </div>
                 </div>
@@ -82,10 +87,10 @@ const handleEscButton = (event: KeyboardEvent) => {
     }
 };
 
-const getGendersList = async () => {
-    const response = await getGenders();
+const getGenresList = async () => {
+    const response = await getGenres();
     if (!response.ok) return false;
-    const genderResponse = await response.json();
+    const genreResponse = await response.json();
 
-    return genderResponse.genres;
+    return genreResponse.genres;
 };

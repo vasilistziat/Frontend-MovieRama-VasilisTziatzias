@@ -528,12 +528,25 @@ img {
   }
 }
 .movie-card .movie-info h3 {
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   font-size: 16px;
   line-height: 1.2;
 }
+.movie-card .movie-info h3 span {
+  font-weight: 300;
+}
+.movie-card .movie-info .genres {
+  display: block;
+  font-size: 14px;
+  line-height: 1.2;
+  color: #bdbdbd;
+  margin-bottom: 8px;
+  font-weight: 300;
+}
 .movie-card .movie-info .date {
   display: block;
+  line-height: 1;
+  font-size: 14px;
 }
 .movie-card .movie-rating {
   position: absolute;
@@ -685,6 +698,40 @@ img {
 }
 #movie-details .movie-infobox__header .movie-header-info .movie-meta span {
   margin-right: 8px;
+}
+#movie-details .movie-infobox__header .movie-header-info .movie-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+#movie-details .movie-infobox__header .movie-header-info .movie-rating__stars {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  color: #62b693;
+}
+#movie-details .movie-infobox__header .movie-header-info .movie-rating__stars > i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  display: block;
+  font-size: 24px;
+}
+#movie-details .movie-infobox__header .movie-header-info .movie-rating__stars > i.full {
+  width: 0%;
+  font-size: 24px;
+}
+#movie-details .movie-infobox__header .movie-header-info .movie-rating__average {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+}
+#movie-details .movie-infobox__header .movie-header-info .movie-rating__number {
+  display: block;
+  font-size: 18px;
+  font-weight: 300;
 }
 #movie-details .movie-infobox__content {
   background-color: #000;
