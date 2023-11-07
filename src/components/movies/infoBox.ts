@@ -67,13 +67,13 @@ export const buildMovieInfobox = async (movie: Movie) => {
                         <p>${movie.overview}</p>
                     </div>
                 </div>
-            </div>
-            <div class="movie-infobox__content">
-                <div class="tabs-header" data-movie-tab-actions></div>
-                <div class="tabs-body" data-movie-tab-body>
-                    ${trailers ? renderTrailers(trailers) : ''}
-                    ${renderReviews(reviewsResponse.results)}
-                    ${renderSimilar(similarResponse.results)}
+                <div class="movie-infobox__content">
+                    <div class="tabs-header" data-movie-tab-actions></div>
+                    <div class="tabs-body" data-movie-tab-body>
+                        ${trailers ? renderTrailers(trailers) : ''}
+                        ${renderReviews(reviewsResponse.results)}
+                        ${renderSimilar(similarResponse.results)}
+                    </div>
                 </div>
             </div>
         </div>
