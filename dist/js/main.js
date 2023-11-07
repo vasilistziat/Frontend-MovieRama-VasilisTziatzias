@@ -295,9 +295,9 @@
                         </div>
                         <div class="movie-meta">
                             <span>${movieDate.toLocaleDateString('en-UK', {
-        weekday: 'long',
+        weekday: 'short',
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric'
     })}</span>
                             <span> • </span>

@@ -363,13 +363,13 @@ img {
   display: flex;
   justify-content: space-between;
   flex-direction: column-reverse;
+  align-items: center;
   gap: 24px;
   margin-bottom: 28px;
 }
 @media screen and (min-width: 1024px) {
   .section-title {
     flex-direction: row;
-    align-items: center;
   }
 }
 .section-title h2 {
