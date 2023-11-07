@@ -3,7 +3,6 @@ import { getImageSrc, getMovieAssets, getTrailer } from './media';
 import { getDuration } from 'utils/time';
 import { stringToHtml } from 'utils/dom';
 import { getReviews } from 'requests/reviews';
-import { avatarDefaultUrl } from 'components/constants';
 import { renderReviews } from './reviews';
 
 const movieTabs = ['Trailer', 'Reviews', 'Recommended'];

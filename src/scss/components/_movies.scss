@@ -321,6 +321,13 @@
                     grid-template-columns: repeat(2, 1fr);
                     gap: 16px;
                 }
+
+                &--reviews {
+                    & > .review + .review {
+                        margin-top: 24px;
+                        border-top: 1px solid #202020;
+                    }
+                }
             }
         }
     }

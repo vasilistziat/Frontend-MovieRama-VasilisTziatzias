@@ -18,7 +18,7 @@ export const renderReviews = (reviewsResponse: Review[]) => {
                 </div>
                 <div class="review__meta">
                     <h4>${review.author}</h4>
-                    <span>${reviewDate.toLocaleString()}</span>
+                    <span class="published-date">Published at: ${reviewDate.toLocaleString()}</span>
                 </div>
             </div>
             <div class="review__content">
