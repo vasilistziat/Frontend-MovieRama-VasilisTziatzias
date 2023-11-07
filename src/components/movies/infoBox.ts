@@ -19,9 +19,9 @@ export const buildMovieInfobox = async (movie: Movie) => {
     if (!getReviewsresponse.ok) return false;
     const reviewsResponse = await getReviewsresponse.json();
 
-    const getSimilarresponse = await getSimilar(movie.id);
-    if (!getSimilarresponse.ok) return false;
-    const similarResponse = await getSimilarresponse.json();
+    const getSimilarResponse = await getSimilar(movie.id);
+    if (!getSimilarResponse.ok) return false;
+    const similarResponse = await getSimilarResponse.json();
 
     const trailers = await getTrailer(movie);
 

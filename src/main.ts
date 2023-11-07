@@ -9,6 +9,7 @@ import { handleMovieClick } from 'components/movies/list';
 renderMovies().then(() => {
     initSearch();
     initInfiniteScroll();
+
     document.addEventListener('click', (event) => {
         document
             .querySelectorAll('[data-movie-id]')

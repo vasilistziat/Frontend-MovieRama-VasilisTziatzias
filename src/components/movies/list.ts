@@ -15,6 +15,7 @@ export const buildMovies = async (moviesData: Movie[]) => {
         const rating = (movie.vote_average / 10) * 100;
         const poster = getMovieAssets(movie).poster;
         const movieDate = new Date(movie.release_date);
+
         const htmlString = `
             <article class="movie-card" data-movie-id="${movie.id}">
                 <div class="loader"><i class="fa-solid fa-circle-notch"></i></div>
@@ -30,7 +31,11 @@ export const buildMovies = async (moviesData: Movie[]) => {
                     </div>
                     ${poster.image}
                     <div class="movie-info">
-                        <h3>${movie.title} (${movieDate.getFullYear()})</h3>
+                        <h3>${movie.title} ${
+                            movie.release_date != ''
+                                ? `(${movieDate.getFullYear()})`
+                                : ''
+                        }</h3>
                         <span class="date">${movie.release_date}</span>
                     </div>
                 </div>

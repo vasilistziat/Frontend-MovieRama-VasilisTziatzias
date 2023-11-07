@@ -270,10 +270,10 @@
         if (!getReviewsresponse.ok)
             return false;
         const reviewsResponse = yield getReviewsresponse.json();
-        const getSimilarresponse = yield getSimilar(movie.id);
-        if (!getSimilarresponse.ok)
+        const getSimilarResponse = yield getSimilar(movie.id);
+        if (!getSimilarResponse.ok)
             return false;
-        const similarResponse = yield getSimilarresponse.json();
+        const similarResponse = yield getSimilarResponse.json();
         const trailers = yield getTrailer(movie);
         const htmlString = `
         <div class="movie-infobox">
@@ -390,7 +390,9 @@
                     </div>
                     ${poster.image}
                     <div class="movie-info">
-                        <h3>${movie.title} (${movieDate.getFullYear()})</h3>
+                        <h3>${movie.title} ${movie.release_date != ''
+            ? `(${movieDate.getFullYear()})`
+            : ''}</h3>
                         <span class="date">${movie.release_date}</span>
                     </div>
                 </div>
@@ -442,11 +444,11 @@
             const nowPlayingWrapper = document.querySelector('[data-movies-list]');
             renderSkeletonCards(nowPlayingWrapper, 20);
             try {
-                const nowPlayingResponse = yield nowPlaying(pagenumber);
-                if (!nowPlayingResponse.ok)
+                const response = yield nowPlaying(pagenumber);
+                if (!response.ok)
                     return false;
-                const response = yield nowPlayingResponse.json();
-                const data = response.results;
+                const nowPlayingResponse = yield response.json();
+                const data = nowPlayingResponse.results;
                 const buildMoviesList = yield buildMovies(data);
                 nowPlayingWrapper.append(...buildMoviesList);
                 removeSkeletonCards(nowPlayingWrapper);
@@ -497,8 +499,8 @@
                 data = results;
             }
             const buildMoviesList = yield buildMovies(data);
-            removeSkeletonCards(movieList);
             movieList.append(...buildMoviesList);
+            removeSkeletonCards(movieList);
         }
         catch (error) {
             console.error(error);

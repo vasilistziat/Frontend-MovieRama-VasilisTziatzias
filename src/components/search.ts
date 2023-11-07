@@ -39,8 +39,8 @@ export const renderSearch = async (
         }
 
         const buildMoviesList = await buildMovies(data);
-        removeSkeletonCards(movieList);
         movieList.append(...buildMoviesList);
+        removeSkeletonCards(movieList);
     } catch (error) {
         console.error(error);
     }

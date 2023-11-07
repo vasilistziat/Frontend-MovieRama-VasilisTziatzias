@@ -8,13 +8,11 @@ export default async function renderMovies(pagenumber?: number) {
     renderSkeletonCards(nowPlayingWrapper, 20);
 
     try {
-        const nowPlayingResponse = await nowPlaying(pagenumber);
+        const response = await nowPlaying(pagenumber);
+        if (!response.ok) return false;
+        const nowPlayingResponse = await response.json();
 
-        if (!nowPlayingResponse.ok) return false;
-
-        const response = await nowPlayingResponse.json();
-
-        const data = response.results as Movie[];
+        const data = nowPlayingResponse.results as Movie[];
         const buildMoviesList = await buildMovies(data);
         nowPlayingWrapper.append(...buildMoviesList);
         removeSkeletonCards(nowPlayingWrapper);

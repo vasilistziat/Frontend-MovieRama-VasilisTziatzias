@@ -750,6 +750,20 @@ img {
   overflow: auto;
   gap: 12px;
   padding-bottom: 18px;
+  scrollbar-color: #62b693 #202020;
+  scrollbar-width: thin;
+}
+#movie-details .movie-infobox__content .tab-content .similar-list::-webkit-scrollbar {
+  height: 4px;
+  border-radius: 2px;
+}
+#movie-details .movie-infobox__content .tab-content .similar-list::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: #62b693;
+}
+#movie-details .movie-infobox__content .tab-content .similar-list::-webkit-scrollbar-track {
+  background-color: #202020;
+  height: 2px;
 }
 #movie-details .movie-infobox__content .tab-content--reviews > .review + .review {
   margin-top: 24px;

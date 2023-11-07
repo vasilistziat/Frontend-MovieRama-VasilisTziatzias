@@ -359,6 +359,23 @@
                     overflow: auto;
                     gap: 12px;
                     padding-bottom: 18px;
+                    scrollbar-color: $primary_color #202020;
+                    scrollbar-width: thin;
+
+                    &::-webkit-scrollbar {
+                        height: 4px;
+                        border-radius: 2px;
+                    }
+
+                    &::-webkit-scrollbar-thumb {
+                        border-radius: 2px;
+                        background-color: $primary_color;
+                    }
+
+                    &::-webkit-scrollbar-track {
+                        background-color: #202020;
+                        height: 2px;
+                    }
                 }
 
                 &--reviews {
