@@ -2,7 +2,7 @@ import { Movie, Review } from 'types/movie';
 import { getImageSrc, getMovieAssets, getTrailer } from './media';
 import { getDuration } from 'utils/time';
 import { stringToHtml } from 'utils/dom';
-import { getReviews } from 'requests/reviews';
+import { getReviews } from 'api/reviews';
 import { renderReviews } from './reviews';
 
 const movieTabs = ['Trailer', 'Reviews', 'Recommended'];

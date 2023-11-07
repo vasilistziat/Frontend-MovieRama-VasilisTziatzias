@@ -1,9 +1,9 @@
 import type { Movie, MovieGenres } from 'types/movie';
 import { getMovieAssets } from './media';
 import { stringToHtml } from 'utils/dom';
-import { getMovie } from 'requests/movie';
+import { getMovie } from 'api/movie';
 import { buildMovieInfobox, closeInfobox } from './infoBox';
-import { getGenders } from 'requests/genders';
+import { getGenders } from 'api/genders';
 
 let gendersList: MovieGenres[] = [];
 

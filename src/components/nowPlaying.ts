@@ -1,4 +1,4 @@
-import nowPlaying from '../requests/nowPlaying';
+import nowPlaying from '../api/nowPlaying';
 import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
 import { Movie } from '../types/movie';
 import { buildMovies } from './movies/list';

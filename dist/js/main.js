@@ -74,9 +74,9 @@
             .forEach((skeleton) => skeleton.remove());
     };
 
-    const imageDefaultUrl = 'http://image.tmdb.org/t/p/w300_and_h450_bestv2';
-    const imageBackdropDefaultUrl = 'http://image.tmdb.org/t/p/w1920_and_h800_multi_faces';
-    const avatarDefaultUrl = 'http://image.tmdb.org/t/p/w150_and_h150_face/';
+    const imageDefaultUrl = 'https://image.tmdb.org/t/p/w300_and_h450_bestv2';
+    const imageBackdropDefaultUrl = 'https://image.tmdb.org/t/p/w1920_and_h800_multi_faces';
+    const avatarDefaultUrl = 'https://image.tmdb.org/t/p/w150_and_h150_face/';
 
     function getMovie(movieId) {
         return __awaiter(this, void 0, void 0, function* () {

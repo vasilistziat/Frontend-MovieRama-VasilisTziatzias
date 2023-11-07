@@ -1,4 +1,4 @@
-import { getSearch } from 'requests/search';
+import { getSearch } from 'api/search';
 import renderMovies from './nowPlaying';
 import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
 import { Movie } from 'types/movie';

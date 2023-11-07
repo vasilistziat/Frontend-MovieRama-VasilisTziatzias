@@ -1,5 +1,5 @@
 import { imageBackdropDefaultUrl, imageDefaultUrl } from 'components/constants';
-import { getVideos } from 'requests/movie';
+import { getVideos } from 'api/movie';
 import { Movie, VideosResponse } from 'types/movie';
 
 export const getTrailer = async (movie: Movie) => {
