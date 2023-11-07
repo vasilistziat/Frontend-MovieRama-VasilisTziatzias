@@ -1,11 +1,11 @@
-import render from './nowPlaying';
+import renderMovies from './nowPlaying';
 import { renderSearch } from './search';
 
 export default function initInfiniteScroll() {
     const options = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.75
+        threshold: 0
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -15,6 +15,11 @@ export default function initInfiniteScroll() {
                     document.querySelector('[data-movies-list]');
 
                 if (!moviesListElement) return;
+
+                const noFound =
+                    moviesListElement?.getAttribute('data-no-found');
+
+                if (!!noFound) return;
 
                 const moviesPage = moviesListElement.getAttribute(
                     'data-movies-page'
@@ -28,19 +33,14 @@ export default function initInfiniteScroll() {
                     ? moviesListElement.getAttribute('data-movies-results')!
                     : 'nowPlaying';
 
-                const noFound =
-                    moviesListElement?.getAttribute('data-no-found');
-
                 const newMoviePage = parseInt(moviesPage) + 1;
                 moviesListElement?.setAttribute(
                     'data-movies-page',
                     newMoviePage.toString()
                 );
 
-                if (!!noFound) return;
-
                 if (pageResults === 'nowPlaying') {
-                    render(newMoviePage);
+                    renderMovies(newMoviePage);
                 } else {
                     renderSearch(undefined, newMoviePage);
                 }

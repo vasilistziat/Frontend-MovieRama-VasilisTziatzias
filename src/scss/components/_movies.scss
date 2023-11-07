@@ -41,14 +41,16 @@
         transition: box-shadow 300ms ease;
     }
 
-    &:hover {
-        &:after {
-            box-shadow: inset 0px 0px 0px 5px $primary_color;
-        }
+    @media screen and (min-width: 1024px) {
+        &:hover {
+            &:after {
+                box-shadow: inset 0px 0px 0px 5px $primary_color;
+            }
 
-        .movie-info {
-            transform: translateY(0);
-            opacity: 1;
+            .movie-info {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
     }
 
@@ -82,12 +84,15 @@
         background: rgb(0, 0, 0);
         background: linear-gradient(
             0deg,
-            rgba(0, 0, 0, 1) 0%,
-            rgba(255, 255, 255, 0) 80%
+            rgba(0, 0, 0, 1) 15%,
+            rgba(255, 255, 255, 0) 100%
         );
-        transform: translateY(20px);
-        opacity: 0;
-        transition: 400ms all ease;
+
+        @media screen and (min-width: 1024px) {
+            transform: translateY(20px);
+            opacity: 0;
+            transition: 200ms all ease;
+        }
 
         h3 {
             margin: 0 0 4px;
@@ -298,7 +303,13 @@
 
             .tab-content {
                 padding: 16px 0;
-                &--trailers {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+
+                .trailers {
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
                     gap: 16px;

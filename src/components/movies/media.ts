@@ -25,7 +25,7 @@ export const getTrailer = async (movie: Movie) => {
     }
 };
 
-export const getPoster = (movie: Movie) => {
+export const getMovieAssets = (movie: Movie) => {
     return {
         poster: {
             image: `<img src="${getImageSrc(movie.poster_path)}" alt="${

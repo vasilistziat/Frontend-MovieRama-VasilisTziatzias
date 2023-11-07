@@ -38,10 +38,10 @@
     const defaultUrl = 'https://api.themoviedb.org/3';
     const apiKey = 'bc50218d91157b1ba4f142ef7baaa6a0';
     const paths = {
-        NowPlaying: '/movie/now_playing',
-        MovieList: '/genre/movie/list',
-        Movie: '/movie',
-        Search: '/search/movie'
+        nowPlaying: '/movie/now_playing',
+        movie: '/movie',
+        search: '/search/movie',
+        genders: '/genre/movie/list'
     };
     var Endpoints;
     (function (Endpoints) {
@@ -51,7 +51,7 @@
 
     function nowPlaying(pageNumber = 1) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.NowPlaying}?api_key=${apiKey}&page=${pageNumber}&language=en-US`, {
+            const response = yield fetch(`${defaultUrl}${paths.nowPlaying}?api_key=${apiKey}&page=${pageNumber}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -64,10 +64,7 @@
     const renderSkeletonCards = (wrapper, numberOfCards = 10) => {
         let cards = '';
         for (let i = 0; i < numberOfCards; i++) {
-            cards += `
-        <div class="skeleton-card">
-            d
-        </div>`;
+            cards += `<div class="skeleton-card"></div>`;
         }
         wrapper.innerHTML += cards;
     };
@@ -79,10 +76,11 @@
 
     const imageDefaultUrl = 'http://image.tmdb.org/t/p/w300_and_h450_bestv2';
     const imageBackdropDefaultUrl = 'http://image.tmdb.org/t/p/w1920_and_h800_multi_faces';
+    const avatarDefaultUrl = 'http://image.tmdb.org/t/p/w150_and_h150_face/';
 
     function getMovie(movieId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.Movie}/${movieId}?api_key=${apiKey}&language=en-US`, {
+            const response = yield fetch(`${defaultUrl}${paths.movie}/${movieId}?api_key=${apiKey}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -93,7 +91,7 @@
     }
     function getVideos(movieId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.Movie}/${movieId}/videos?api_key=${apiKey}&language=en-US`, {
+            const response = yield fetch(`${defaultUrl}${paths.movie}/${movieId}/videos?api_key=${apiKey}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -124,7 +122,7 @@
             return 'No trailer found';
         }
     });
-    const getPoster = (movie) => {
+    const getMovieAssets = (movie) => {
         return {
             poster: {
                 image: `<img src="${getImageSrc(movie.poster_path)}" alt="${movie.title}" />`,
@@ -157,12 +155,62 @@
         return `${roundedHours}h ${roundedMinutes}m`;
     };
 
+    function getReviews(movieId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(`${defaultUrl}${paths.movie}/${movieId}/reviews?api_key=${apiKey}&language=en-US`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        });
+    }
+
+    const renderReviews = (reviewsResponse) => {
+        if (!reviewsResponse.length)
+            return '';
+        const reviewsTabs = [];
+        reviewsResponse.forEach((review) => {
+            const reviewDate = new Date(review.created_at);
+            const html = `
+        <div class="review">
+            <div class="review__header">
+                <div class="review__avatar">
+                    <img src="${getAvatar(review.author_details.avatar_path)}" alt="${review.author}" />
+                </div>
+                <div class="review__meta">
+                    <h4>${review.author}</h4>
+                    <span>${reviewDate.toLocaleString()}</span>
+                </div>
+            </div>
+            <div class="review__content">
+                <p>${review.content}</p>
+            </div>
+        </div>
+        `;
+            reviewsTabs.push(html);
+        });
+        const reviewsTabHtml = `<div class="tab-content tab-content--reviews" data-tab-body-index="2">${reviewsTabs.join('')}</div>`;
+        return reviewsTabHtml;
+    };
+    const getAvatar = (avatar) => {
+        let authorAvatar = 'dist/assets/images/avatar_placeholder.jpg';
+        if (avatar)
+            authorAvatar = `${avatarDefaultUrl}${avatar}`;
+        return authorAvatar;
+    };
+
     const movieTabs = ['Trailer', 'Reviews', 'Recommended'];
     const buildMovieInfobox = (movie) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
-        const movieBackdrop = getPoster(movie).backdrop;
-        const moviePoster = getPoster(movie).poster;
+        const movieBackdrop = getMovieAssets(movie).backdrop;
+        const moviePoster = getMovieAssets(movie).poster;
         const movieDate = new Date(movie.release_date);
+        const response = yield getReviews(movie.id);
+        if (!response.ok)
+            return false;
+        const reviewsResponse = yield response.json();
         const htmlString = `
         <div class="movie-infobox">
             <div class="container container--sm">
@@ -185,17 +233,20 @@
             </div>
             <div class="movie-infobox__content">
                 <div class="tabs-header" data-movie-tab-actions></div>
-                <div class="tabs-body">
-                    <div class="tab-content tab-content--trailers" data-tab-index="1">
-                        ${yield getTrailer(movie)}
+                <div class="tabs-body" data-movie-tab-body>
+                    <div class="tab-content active" data-tab-body-index="1">
+                        <div class="trailers">
+                            ${yield getTrailer(movie)}
+                        </div>
                     </div>
+                    ${renderReviews(reviewsResponse.results)}
                 </div>
             </div>
         </div>
     `;
         const infobox = stringToHtml(htmlString);
         renderClose(infobox);
-        renderTabActions(infobox);
+        renderTabActions(infobox, reviewsResponse.results);
         return infobox;
     });
     const renderClose = (element) => {
@@ -209,19 +260,27 @@
         });
         (_a = element === null || element === void 0 ? void 0 : element.querySelector('[data-movie-infobox-header]')) === null || _a === void 0 ? void 0 : _a.append(closeInfoboxElement);
     };
-    const renderTabActions = (element) => {
+    const renderTabActions = (element, reviews) => {
         var _a;
         const tabs = [];
         movieTabs.forEach((tab, index) => {
+            console.log(reviews.length);
+            if (tab == 'Reviews' && reviews.length < 2)
+                return;
             const htmlString = `
-            <button type="button" ${index == 0 ? 'class="active"' : ''} data-tab-action>${tab}</button>
+            <button type="button" ${index == 0 ? 'class="active"' : ''} data-tab-action="${index + 1}">${tab == 'Reviews' ? `${tab} (${reviews.length})` : tab}</button>
         `;
             const tabAction = stringToHtml(htmlString);
             tabAction.addEventListener('click', (event) => {
-                var _a;
+                var _a, _b;
                 (_a = element
                     .querySelectorAll('[data-tab-action]')) === null || _a === void 0 ? void 0 : _a.forEach((element) => element.classList.remove('active'));
                 event.target.classList.add('active');
+                element
+                    .querySelectorAll('[data-tab-body-index]')
+                    .forEach((tabBody) => tabBody.classList.remove('active'));
+                (_b = element
+                    .querySelector(`[data-tab-body-index="${index + 1}"]`)) === null || _b === void 0 ? void 0 : _b.classList.add('active');
             });
             tabs.push(tabAction);
         });
@@ -239,11 +298,26 @@
         }
     };
 
-    const buildMovies = (moviesData) => {
+    function getGenders() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(`${defaultUrl}${paths.genders}?api_key=${apiKey}&language=en-US`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        });
+    }
+
+    let gendersList = [];
+    const buildMovies = (moviesData) => __awaiter(void 0, void 0, void 0, function* () {
         const moviesList = [];
+        if (!gendersList.length)
+            gendersList = yield getGendersList();
         moviesData.forEach((movie) => {
             const rating = (movie.vote_average / 10) * 100;
-            const poster = getPoster(movie).poster;
+            const poster = getMovieAssets(movie).poster;
             const movieDate = new Date(movie.release_date);
             const htmlString = `
             <article class="movie-card" data-movie-id="${movie.id}">
@@ -267,7 +341,7 @@
             moviesList.push(movieHtml);
         });
         return moviesList;
-    };
+    });
     const handleMovieClick = (event) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const currentMovie = event.target;
@@ -292,8 +366,15 @@
             document.removeEventListener('keydown', handleEscButton);
         }
     };
+    const getGendersList = () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield getGenders();
+        if (!response.ok)
+            return false;
+        const genderResponse = yield response.json();
+        return genderResponse.genres;
+    });
 
-    function render(pagenumber) {
+    function renderMovies(pagenumber) {
         return __awaiter(this, void 0, void 0, function* () {
             const nowPlayingWrapper = document.querySelector('[data-movies-list]');
             renderSkeletonCards(nowPlayingWrapper, 20);
@@ -304,7 +385,7 @@
                 const response = yield nowPlayingResponse.json();
                 removeSkeletonCards(nowPlayingWrapper);
                 const data = response.results;
-                const buildMoviesList = buildMovies(data);
+                const buildMoviesList = yield buildMovies(data);
                 nowPlayingWrapper.append(...buildMoviesList);
             }
             catch (error) {
@@ -315,7 +396,7 @@
 
     function getSearch(query, pageNumber = 1, signal) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${defaultUrl}${paths.Search}?query=${query}&page=${pageNumber}&api_key=${apiKey}&language=en-US`, {
+            const response = yield fetch(`${defaultUrl}${paths.search}?query=${query}&page=${pageNumber}&api_key=${apiKey}&language=en-US`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -336,13 +417,13 @@
     const renderSearch = (results, pageNumber = 1) => __awaiter(void 0, void 0, void 0, function* () {
         if (!movieList || !searchInput)
             return;
-        renderSkeletonCards(movieList, 5);
+        renderSkeletonCards(movieList, 10);
+        moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.removeAttribute('data-no-found');
         try {
             let data = [];
             if (!results) {
                 const searchResponse = yield getResults(searchInput.value, pageNumber);
                 if (searchResponse.page <= searchResponse.total_pages) {
-                    moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.removeAttribute('data-no-found');
                     data = searchResponse.results;
                 }
                 else {
@@ -352,7 +433,7 @@
             else {
                 data = results;
             }
-            const buildMoviesList = buildMovies(data);
+            const buildMoviesList = yield buildMovies(data);
             removeSkeletonCards(movieList);
             movieList.append(...buildMoviesList);
         }
@@ -370,9 +451,9 @@
             if (response) {
                 if (movieList)
                     movieList.innerHTML = '';
+                moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-page', '1');
                 if (response.page <= response.total_pages) {
                     renderSearch(response.results);
-                    moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-page', '1');
                 }
             }
         }
@@ -381,7 +462,7 @@
                 moviesListElement.innerHTML = '';
             moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-results', 'nowPlaying');
             moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.removeAttribute('data-no-found');
-            render();
+            renderMovies();
         }
     });
     const getResults = (terms, pageNumber, signal) => __awaiter(void 0, void 0, void 0, function* () {
@@ -403,7 +484,7 @@
         const options = {
             root: null,
             rootMargin: '0px',
-            threshold: 0.75
+            threshold: 0
         };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
@@ -411,19 +492,19 @@
                     const moviesListElement = document.querySelector('[data-movies-list]');
                     if (!moviesListElement)
                         return;
+                    const noFound = moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.getAttribute('data-no-found');
+                    if (!!noFound)
+                        return;
                     const moviesPage = moviesListElement.getAttribute('data-movies-page')
                         ? moviesListElement.getAttribute('data-movies-page')
                         : '1';
                     const pageResults = moviesListElement.getAttribute('data-movies-results')
                         ? moviesListElement.getAttribute('data-movies-results')
                         : 'nowPlaying';
-                    const noFound = moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.getAttribute('data-no-found');
                     const newMoviePage = parseInt(moviesPage) + 1;
                     moviesListElement === null || moviesListElement === void 0 ? void 0 : moviesListElement.setAttribute('data-movies-page', newMoviePage.toString());
-                    if (!!noFound)
-                        return;
                     if (pageResults === 'nowPlaying') {
-                        render(newMoviePage);
+                        renderMovies(newMoviePage);
                     }
                     else {
                         renderSearch(undefined, newMoviePage);
@@ -435,7 +516,7 @@
     }
 
     //Rollup need this in order to watch scss
-    render();
+    renderMovies();
     initSearch();
     initInfiniteScroll();
     document.addEventListener('click', (event) => {

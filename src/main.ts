@@ -1,12 +1,12 @@
 //Rollup need this in order to watch scss
 import './scss/bundle.scss';
 
-import render from './components/nowPlaying';
+import renderMovies from './components/nowPlaying';
 import initInfiniteScroll from './components/infiniteScroll';
 import { initSearch } from 'components/search';
 import { handleMovieClick } from 'components/movies/buildList';
 
-render();
+renderMovies();
 initSearch();
 initInfiniteScroll();
 

@@ -254,6 +254,10 @@ img {
   height: auto;
 }
 
+#main {
+  min-height: calc(100vh - 162px);
+}
+
 .container {
   max-width: 1370px;
   margin: 0 auto;
@@ -385,6 +389,7 @@ img {
   padding: 8px 18px;
   color: #c8c8c8;
   width: 100%;
+  border: 1px solid #404040;
 }
 @media screen and (min-width: 1024px) {
   .section-title .searc-area input {
@@ -436,12 +441,14 @@ img {
   box-shadow: inset 0px 0px 0px 0px #62b693;
   transition: box-shadow 300ms ease;
 }
-.movie-card:hover:after {
-  box-shadow: inset 0px 0px 0px 5px #62b693;
-}
-.movie-card:hover .movie-info {
-  transform: translateY(0);
-  opacity: 1;
+@media screen and (min-width: 1024px) {
+  .movie-card:hover:after {
+    box-shadow: inset 0px 0px 0px 5px #62b693;
+  }
+  .movie-card:hover .movie-info {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 .movie-card__details {
   position: relative;
@@ -468,10 +475,14 @@ img {
   width: 100%;
   padding: 50% 12px 12px;
   background: rgb(0, 0, 0);
-  background: linear-gradient(0deg, rgb(0, 0, 0) 0%, rgba(255, 255, 255, 0) 80%);
-  transform: translateY(20px);
-  opacity: 0;
-  transition: 400ms all ease;
+  background: linear-gradient(0deg, rgb(0, 0, 0) 15%, rgba(255, 255, 255, 0) 100%);
+}
+@media screen and (min-width: 1024px) {
+  .movie-card .movie-info {
+    transform: translateY(20px);
+    opacity: 0;
+    transition: 200ms all ease;
+  }
 }
 .movie-card .movie-info h3 {
   margin: 0 0 4px;
@@ -647,8 +658,12 @@ img {
 }
 #movie-details .movie-infobox__content .tab-content {
   padding: 16px 0;
+  display: none;
 }
-#movie-details .movie-infobox__content .tab-content--trailers {
+#movie-details .movie-infobox__content .tab-content.active {
+  display: block;
+}
+#movie-details .movie-infobox__content .tab-content .trailers {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;

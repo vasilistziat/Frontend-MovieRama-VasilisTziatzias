@@ -1,8 +1,8 @@
 import { apiKey, defaultUrl, paths } from './constants';
 
-export default async function nowPlaying(pageNumber: number = 1) {
+export async function getGenders() {
     const response = await fetch(
-        `${defaultUrl}${paths.nowPlaying}?api_key=${apiKey}&page=${pageNumber}&language=en-US`,
+        `${defaultUrl}${paths.genders}?api_key=${apiKey}&language=en-US`,
         {
             method: 'GET',
             headers: {

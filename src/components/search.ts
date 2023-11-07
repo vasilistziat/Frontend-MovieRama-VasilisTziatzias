@@ -1,5 +1,5 @@
 import { getSearch } from 'requests/search';
-import render from './nowPlaying';
+import renderMovies from './nowPlaying';
 import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
 import { Movie } from 'types/movie';
 import { buildMovies } from './movies/buildList';
@@ -18,7 +18,8 @@ export const renderSearch = async (
     pageNumber: number = 1
 ) => {
     if (!movieList || !searchInput) return;
-    renderSkeletonCards(movieList, 5);
+    renderSkeletonCards(movieList, 10);
+    moviesListElement?.removeAttribute('data-no-found');
 
     try {
         let data: Movie[] = [];
@@ -29,7 +30,6 @@ export const renderSearch = async (
                 pageNumber
             );
             if (searchResponse.page <= searchResponse.total_pages) {
-                moviesListElement?.removeAttribute('data-no-found');
                 data = searchResponse.results as Movie[];
             } else {
                 moviesListElement?.setAttribute('data-no-found', 'true');
@@ -38,7 +38,7 @@ export const renderSearch = async (
             data = results;
         }
 
-        const buildMoviesList = buildMovies(data);
+        const buildMoviesList = await buildMovies(data);
         removeSkeletonCards(movieList);
         movieList.append(...buildMoviesList);
     } catch (error) {
@@ -56,16 +56,16 @@ const searchListener = async (event: Event) => {
         const response = await getResults(terms, 1, abortController.signal);
         if (response) {
             if (movieList) movieList.innerHTML = '';
+            moviesListElement?.setAttribute('data-movies-page', '1');
             if (response.page <= response.total_pages) {
                 renderSearch(response.results);
-                moviesListElement?.setAttribute('data-movies-page', '1');
             }
         }
     } else {
         if (moviesListElement) moviesListElement.innerHTML = '';
         moviesListElement?.setAttribute('data-movies-results', 'nowPlaying');
         moviesListElement?.removeAttribute('data-no-found');
-        render();
+        renderMovies();
     }
 };
 

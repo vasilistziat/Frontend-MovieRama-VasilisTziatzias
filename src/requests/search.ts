@@ -6,7 +6,7 @@ export async function getSearch(
     signal?: AbortSignal
 ) {
     const response = await fetch(
-        `${defaultUrl}${paths.Search}?query=${query}&page=${pageNumber}&api_key=${apiKey}&language=en-US`,
+        `${defaultUrl}${paths.search}?query=${query}&page=${pageNumber}&api_key=${apiKey}&language=en-US`,
         {
             method: 'GET',
             headers: {

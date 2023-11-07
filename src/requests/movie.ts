@@ -2,7 +2,7 @@ import { apiKey, defaultUrl, paths } from './constants';
 
 export async function getMovie(movieId: string | number) {
     const response = await fetch(
-        `${defaultUrl}${paths.Movie}/${movieId}?api_key=${apiKey}&language=en-US`,
+        `${defaultUrl}${paths.movie}/${movieId}?api_key=${apiKey}&language=en-US`,
         {
             method: 'GET',
             headers: {
@@ -16,7 +16,7 @@ export async function getMovie(movieId: string | number) {
 
 export async function getMovieImages(movieId: string | number) {
     const response = await fetch(
-        `${defaultUrl}${paths.Movie}/${movieId}/images?api_key=${apiKey}&language=en-US`,
+        `${defaultUrl}${paths.movie}/${movieId}/images?api_key=${apiKey}&language=en-US`,
         {
             method: 'GET',
             headers: {
@@ -30,7 +30,7 @@ export async function getMovieImages(movieId: string | number) {
 
 export async function getVideos(movieId: string | number) {
     const response = await fetch(
-        `${defaultUrl}${paths.Movie}/${movieId}/videos?api_key=${apiKey}&language=en-US`,
+        `${defaultUrl}${paths.movie}/${movieId}/videos?api_key=${apiKey}&language=en-US`,
         {
             method: 'GET',
             headers: {

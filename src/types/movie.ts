@@ -18,7 +18,7 @@ export type Movie = {
     runtime: number;
 };
 
-type MovieGenres = {
+export type MovieGenres = {
     id: number;
     name: string;
 };
@@ -31,4 +31,19 @@ export type VideosResponse = {
         site: string;
         type: string;
     }[];
+};
+
+export type Review = {
+    author: string;
+    author_details: {
+        avatar_path: string;
+        name: string;
+        rating: number;
+        username: string;
+    };
+    content: string;
+    created_at: string;
+    id: string;
+    updated_at: string;
+    url: string;
 };

@@ -3,7 +3,7 @@ import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
 import { Movie } from '../types/movie';
 import { buildMovies } from './movies/buildList';
 
-export default async function render(pagenumber?: number) {
+export default async function renderMovies(pagenumber?: number) {
     const nowPlayingWrapper = document.querySelector('[data-movies-list]')!;
     renderSkeletonCards(nowPlayingWrapper, 20);
 
@@ -16,7 +16,7 @@ export default async function render(pagenumber?: number) {
 
         removeSkeletonCards(nowPlayingWrapper);
         const data = response.results as Movie[];
-        const buildMoviesList = buildMovies(data);
+        const buildMoviesList = await buildMovies(data);
         nowPlayingWrapper.append(...buildMoviesList);
     } catch (error) {
         console.error(error);

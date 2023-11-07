@@ -1,14 +1,22 @@
-import { Movie } from 'types/movie';
-import { getImageSrc, getPoster, getTrailer } from './media';
+import { Movie, Review } from 'types/movie';
+import { getImageSrc, getMovieAssets, getTrailer } from './media';
 import { getDuration } from 'utils/time';
 import { stringToHtml } from 'utils/dom';
+import { getReviews } from 'requests/reviews';
+import { avatarDefaultUrl } from 'components/constants';
+import { renderReviews } from './reviews';
 
 const movieTabs = ['Trailer', 'Reviews', 'Recommended'];
 
 export const buildMovieInfobox = async (movie: Movie) => {
-    const movieBackdrop = getPoster(movie).backdrop;
-    const moviePoster = getPoster(movie).poster;
+    const movieBackdrop = getMovieAssets(movie).backdrop;
+    const moviePoster = getMovieAssets(movie).poster;
     const movieDate = new Date(movie.release_date);
+
+    const response = await getReviews(movie.id);
+    if (!response.ok) return false;
+    const reviewsResponse = await response.json();
+
     const htmlString = `
         <div class="movie-infobox">
             <div class="container container--sm">
@@ -37,10 +45,13 @@ export const buildMovieInfobox = async (movie: Movie) => {
             </div>
             <div class="movie-infobox__content">
                 <div class="tabs-header" data-movie-tab-actions></div>
-                <div class="tabs-body">
-                    <div class="tab-content tab-content--trailers" data-tab-index="1">
-                        ${await getTrailer(movie)}
+                <div class="tabs-body" data-movie-tab-body>
+                    <div class="tab-content active" data-tab-body-index="1">
+                        <div class="trailers">
+                            ${await getTrailer(movie)}
+                        </div>
                     </div>
+                    ${renderReviews(reviewsResponse.results)}
                 </div>
             </div>
         </div>
@@ -48,8 +59,7 @@ export const buildMovieInfobox = async (movie: Movie) => {
 
     const infobox = stringToHtml(htmlString);
     renderClose(infobox);
-    renderTabActions(infobox);
-
+    renderTabActions(infobox, reviewsResponse.results);
     return infobox;
 };
 
@@ -66,13 +76,18 @@ const renderClose = (element: Element) => {
         ?.append(closeInfoboxElement);
 };
 
-const renderTabActions = (element: Element) => {
+const renderTabActions = (element: Element, reviews: Review[]) => {
     const tabs: Element[] = [];
     movieTabs.forEach((tab, index) => {
+        console.log(reviews.length);
+        if (tab == 'Reviews' && reviews.length < 2) return;
+
         const htmlString = `
             <button type="button" ${
                 index == 0 ? 'class="active"' : ''
-            } data-tab-action>${tab}</button>
+            } data-tab-action="${index + 1}">${
+                tab == 'Reviews' ? `${tab} (${reviews.length})` : tab
+            }</button>
         `;
         const tabAction = stringToHtml(htmlString);
         tabAction.addEventListener('click', (event) => {
@@ -80,6 +95,12 @@ const renderTabActions = (element: Element) => {
                 .querySelectorAll('[data-tab-action]')
                 ?.forEach((element) => element.classList.remove('active'));
             (event.target as Element).classList.add('active');
+            element
+                .querySelectorAll('[data-tab-body-index]')
+                .forEach((tabBody) => tabBody.classList.remove('active'));
+            element
+                .querySelector(`[data-tab-body-index="${index + 1}"]`)
+                ?.classList.add('active');
         });
         tabs.push(tabAction);
     });

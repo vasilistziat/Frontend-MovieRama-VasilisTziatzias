@@ -1,14 +1,19 @@
-import { Movie } from 'types/movie';
-import { getPoster } from './media';
+import type { Movie, MovieGenres } from 'types/movie';
+import { getMovieAssets } from './media';
 import { stringToHtml } from 'utils/dom';
 import { getMovie } from 'requests/movie';
 import { buildMovieInfobox, closeInfobox } from './infoBox';
+import { getGenders } from 'requests/genders';
 
-export const buildMovies = (moviesData: Movie[]) => {
+let gendersList: MovieGenres[] = [];
+
+export const buildMovies = async (moviesData: Movie[]) => {
     const moviesList: Element[] = [];
+    if (!gendersList.length) gendersList = await getGendersList();
+
     moviesData.forEach((movie) => {
         const rating = (movie.vote_average / 10) * 100;
-        const poster = getPoster(movie).poster;
+        const poster = getMovieAssets(movie).poster;
         const movieDate = new Date(movie.release_date);
         const htmlString = `
             <article class="movie-card" data-movie-id="${movie.id}">
@@ -50,7 +55,7 @@ export const handleMovieClick = async (event: Event) => {
     const response = await movieDetailsResponse.json();
     const infoboxContent = await buildMovieInfobox(response);
 
-    movieInfoboxElement?.append(infoboxContent);
+    movieInfoboxElement?.append(infoboxContent as Element);
     movieInfoboxElement?.classList.add('is-active');
     document.querySelector('html')?.classList.add('is-infobox-active');
     currentMovie.classList.remove('loading');
@@ -62,4 +67,12 @@ const handleEscButton = (event: KeyboardEvent) => {
         closeInfobox();
         document.removeEventListener('keydown', handleEscButton);
     }
+};
+
+const getGendersList = async () => {
+    const response = await getGenders();
+    if (!response.ok) return false;
+    const genderResponse = await response.json();
+
+    return genderResponse.genres;
 };

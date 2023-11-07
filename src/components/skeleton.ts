@@ -5,10 +5,7 @@ export const renderSkeletonCards = (
     let cards = '';
 
     for (let i = 0; i < numberOfCards; i++) {
-        cards += `
-        <div class="skeleton-card">
-            d
-        </div>`;
+        cards += `<div class="skeleton-card"></div>`;
     }
     wrapper.innerHTML += cards;
 };
