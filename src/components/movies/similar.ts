@@ -35,11 +35,11 @@ export const renderSimilar = (similarResponse: Movie[]) => {
         similarList.push(html);
     });
 
-    const reviewsTabHtml = `
+    const similarTabHtml = `
     <div class="tab-content" data-tab-body-index="3">
         <div class="similar-list">${similarList.join('')}</div>
     </div>
     `;
 
-    return reviewsTabHtml;
+    return similarTabHtml;
 };

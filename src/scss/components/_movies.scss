@@ -298,6 +298,11 @@
                 display: flex;
                 list-style: none;
                 border-bottom: 2px solid #202020;
+                flex-direction: column;
+
+                @media screen and (min-width: 680px) {
+                    flex-direction: row;
+                }
 
                 button {
                     appearance: none;

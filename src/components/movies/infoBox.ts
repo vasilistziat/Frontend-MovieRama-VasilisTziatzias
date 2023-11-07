@@ -6,6 +6,7 @@ import { getReviews } from 'api/reviews';
 import { renderReviews } from './reviews';
 import { renderSimilar } from './similar';
 import { getSimilar } from 'api/similar';
+import { renderTrailers } from './trailers';
 
 const movieTabs = ['Trailer', 'Reviews', 'Recommended'];
 
@@ -21,6 +22,8 @@ export const buildMovieInfobox = async (movie: Movie) => {
     const getSimilarresponse = await getSimilar(movie.id);
     if (!getSimilarresponse.ok) return false;
     const similarResponse = await getSimilarresponse.json();
+
+    const trailers = await getTrailer(movie);
 
     const htmlString = `
         <div class="movie-infobox">
@@ -51,11 +54,7 @@ export const buildMovieInfobox = async (movie: Movie) => {
             <div class="movie-infobox__content">
                 <div class="tabs-header" data-movie-tab-actions></div>
                 <div class="tabs-body" data-movie-tab-body>
-                    <div class="tab-content active" data-tab-body-index="1">
-                        <div class="trailers">
-                            ${await getTrailer(movie)}
-                        </div>
-                    </div>
+                    ${trailers ? renderTrailers(trailers) : ''}
                     ${renderReviews(reviewsResponse.results)}
                     ${renderSimilar(similarResponse.results)}
                 </div>

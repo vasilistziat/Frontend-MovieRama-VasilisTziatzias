@@ -229,12 +229,12 @@
         `;
             similarList.push(html);
         });
-        const reviewsTabHtml = `
+        const similarTabHtml = `
     <div class="tab-content" data-tab-body-index="3">
         <div class="similar-list">${similarList.join('')}</div>
     </div>
     `;
-        return reviewsTabHtml;
+        return similarTabHtml;
     };
 
     function getSimilar(movieId) {
@@ -248,6 +248,17 @@
             return response;
         });
     }
+
+    const renderTrailers = (tarilersHtml) => {
+        const trailerTabHtml = `
+        <div class="tab-content active" data-tab-body-index="1">
+            <div class="trailers">
+                ${tarilersHtml}
+            </div>
+        </div>
+    `;
+        return trailerTabHtml;
+    };
 
     const movieTabs = ['Trailer', 'Reviews', 'Recommended'];
     const buildMovieInfobox = (movie) => __awaiter(void 0, void 0, void 0, function* () {
@@ -263,6 +274,7 @@
         if (!getSimilarresponse.ok)
             return false;
         const similarResponse = yield getSimilarresponse.json();
+        const trailers = yield getTrailer(movie);
         const htmlString = `
         <div class="movie-infobox">
             <div class="container container--sm">
@@ -286,11 +298,7 @@
             <div class="movie-infobox__content">
                 <div class="tabs-header" data-movie-tab-actions></div>
                 <div class="tabs-body" data-movie-tab-body>
-                    <div class="tab-content active" data-tab-body-index="1">
-                        <div class="trailers">
-                            ${yield getTrailer(movie)}
-                        </div>
-                    </div>
+                    ${trailers ? renderTrailers(trailers) : ''}
                     ${renderReviews(reviewsResponse.results)}
                     ${renderSimilar(similarResponse.results)}
                 </div>
