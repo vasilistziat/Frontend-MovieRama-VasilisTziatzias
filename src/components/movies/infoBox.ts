@@ -51,7 +51,12 @@ export const buildMovieInfobox = async (movie: Movie) => {
                             })</span>
                         </div>
                         <div class="movie-meta">
-                            <span>${movieDate.toDateString()}</span>
+                            <span>${movieDate.toLocaleDateString('en-UK', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}</span>
                             <span> • </span>
                             <span>${movie.genres
                                 ?.map((x) => x.name)

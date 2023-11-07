@@ -294,7 +294,12 @@
                             <span class="movie-rating__number">(${movie.vote_count})</span>
                         </div>
                         <div class="movie-meta">
-                            <span>${movieDate.toDateString()}</span>
+                            <span>${movieDate.toLocaleDateString('en-UK', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    })}</span>
                             <span> • </span>
                             <span>${(_a = movie.genres) === null || _a === void 0 ? void 0 : _a.map((x) => x.name).join(', ')}</span>
                             <span> • </span>
@@ -407,7 +412,6 @@
             ? `<span>(${movieDate.getFullYear()})<span>`
             : ''}</h3>
                         <span class="genres">${movieGenres}</span>
-                        <span class="date">${movie.release_date}</span>
                     </div>
                 </div>
             </article>

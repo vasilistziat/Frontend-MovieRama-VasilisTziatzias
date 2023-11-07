@@ -41,7 +41,6 @@ export const buildMovies = async (moviesData: Movie[]) => {
                                 : ''
                         }</h3>
                         <span class="genres">${movieGenres}</span>
-                        <span class="date">${movie.release_date}</span>
                     </div>
                 </div>
             </article>
