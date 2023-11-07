@@ -25,8 +25,12 @@
         opacity: 0;
         transform: translateY(20px);
         transition: all 200ms ease;
-        padding: 16px 0 32px;
+        padding: 16px 0;
         height: 100%;
+
+        .container {
+            padding-bottom: 32px;
+        }
 
         &__header {
             display: flex;
