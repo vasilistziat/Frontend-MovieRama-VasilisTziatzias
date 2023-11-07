@@ -4,7 +4,7 @@ import { Review } from 'types/movie';
 export const renderReviews = (reviewsResponse: Review[]) => {
     if (!reviewsResponse.length) return '';
 
-    const reviewsTabs: string[] = [];
+    const reviewsList: string[] = [];
 
     reviewsResponse.forEach((review) => {
         const reviewDate = new Date(review.created_at);
@@ -26,10 +26,10 @@ export const renderReviews = (reviewsResponse: Review[]) => {
             </div>
         </div>
         `;
-        reviewsTabs.push(html);
+        reviewsList.push(html);
     });
 
-    const reviewsTabHtml = `<div class="tab-content tab-content--reviews" data-tab-body-index="2">${reviewsTabs.join(
+    const reviewsTabHtml = `<div class="tab-content tab-content--reviews" data-tab-body-index="2">${reviewsList.join(
         ''
     )}</div>`;
 

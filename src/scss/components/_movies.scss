@@ -18,6 +18,15 @@
     border-radius: 4px;
     position: relative;
 
+    &--similar {
+        width: 320px;
+        height: 180px;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        flex-shrink: 0;
+    }
+
     .loader {
         display: none;
     }
@@ -320,6 +329,14 @@
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
                     gap: 16px;
+                }
+
+                .similar-list {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    overflow: auto;
+                    gap: 12px;
+                    padding-bottom: 18px;
                 }
 
                 &--reviews {

@@ -4,6 +4,8 @@ import { getDuration } from 'utils/time';
 import { stringToHtml } from 'utils/dom';
 import { getReviews } from 'api/reviews';
 import { renderReviews } from './reviews';
+import { renderSimilar } from './similar';
+import { getSimilar } from 'api/similar';
 
 const movieTabs = ['Trailer', 'Reviews', 'Recommended'];
 
@@ -12,9 +14,13 @@ export const buildMovieInfobox = async (movie: Movie) => {
     const moviePoster = getMovieAssets(movie).poster;
     const movieDate = new Date(movie.release_date);
 
-    const response = await getReviews(movie.id);
-    if (!response.ok) return false;
-    const reviewsResponse = await response.json();
+    const getReviewsresponse = await getReviews(movie.id);
+    if (!getReviewsresponse.ok) return false;
+    const reviewsResponse = await getReviewsresponse.json();
+
+    const getSimilarresponse = await getSimilar(movie.id);
+    if (!getSimilarresponse.ok) return false;
+    const similarResponse = await getSimilarresponse.json();
 
     const htmlString = `
         <div class="movie-infobox">
@@ -51,6 +57,7 @@ export const buildMovieInfobox = async (movie: Movie) => {
                         </div>
                     </div>
                     ${renderReviews(reviewsResponse.results)}
+                    ${renderSimilar(similarResponse.results)}
                 </div>
             </div>
         </div>
@@ -78,7 +85,6 @@ const renderClose = (element: Element) => {
 const renderTabActions = (element: Element, reviews: Review[]) => {
     const tabs: Element[] = [];
     movieTabs.forEach((tab, index) => {
-        console.log(reviews.length);
         if (tab == 'Reviews' && reviews.length < 2) return;
 
         const htmlString = `
@@ -112,8 +118,6 @@ export const closeInfobox = () => {
     if (movieInfoboxElement) {
         movieInfoboxElement.classList.remove('is-active');
         document.querySelector('html')?.classList.remove('is-infobox-active');
-        setTimeout(() => {
-            movieInfoboxElement.innerHTML = '';
-        }, 400);
+        movieInfoboxElement.innerHTML = '';
     }
 };

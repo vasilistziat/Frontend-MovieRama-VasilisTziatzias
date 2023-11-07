@@ -170,7 +170,7 @@
     const renderReviews = (reviewsResponse) => {
         if (!reviewsResponse.length)
             return '';
-        const reviewsTabs = [];
+        const reviewsList = [];
         reviewsResponse.forEach((review) => {
             const reviewDate = new Date(review.created_at);
             const html = `
@@ -189,9 +189,9 @@
             </div>
         </div>
         `;
-            reviewsTabs.push(html);
+            reviewsList.push(html);
         });
-        const reviewsTabHtml = `<div class="tab-content tab-content--reviews" data-tab-body-index="2">${reviewsTabs.join('')}</div>`;
+        const reviewsTabHtml = `<div class="tab-content tab-content--reviews" data-tab-body-index="2">${reviewsList.join('')}</div>`;
         return reviewsTabHtml;
     };
     const getAvatar = (avatar) => {
@@ -201,16 +201,68 @@
         return authorAvatar;
     };
 
+    const renderSimilar = (similarResponse) => {
+        if (!similarResponse.length)
+            return '';
+        const similarList = [];
+        similarResponse.forEach((movie) => {
+            const backdrop = getMovieAssets(movie).backdrop;
+            const rating = (movie.vote_average / 10) * 100;
+            const movieDate = new Date(movie.release_date);
+            const html = `
+        <article class="movie-card movie-card--similar" data-movie-id="${movie.id}" style="background-image: url(${backdrop.src})">
+            <div class="loader"><i class="fa-solid fa-circle-notch"></i></div>
+            <div class="movie-card__details">
+                <div class="movie-rating">
+                    <div class="movie-rating__stars">
+                        <i class="fa-regular fa-star empty"></i>
+                        <i class="fa-solid fa-star full" style="width: ${rating}%"></i>
+                    </div>
+                    <span class="movie-rating__number">${movie.vote_average.toFixed(1)}</span>
+                </div>
+                <div class="movie-info">
+                    <h3>${movie.title} (${movieDate.getFullYear()})</h3>
+                    <span class="date">${movie.release_date}</span>
+                </div>
+            </div>
+        </article>
+        `;
+            similarList.push(html);
+        });
+        const reviewsTabHtml = `
+    <div class="tab-content" data-tab-body-index="3">
+        <div class="similar-list">${similarList.join('')}</div>
+    </div>
+    `;
+        return reviewsTabHtml;
+    };
+
+    function getSimilar(movieId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(`${defaultUrl}${paths.movie}/${movieId}/similar?api_key=${apiKey}&language=en-US&page=1`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        });
+    }
+
     const movieTabs = ['Trailer', 'Reviews', 'Recommended'];
     const buildMovieInfobox = (movie) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const movieBackdrop = getMovieAssets(movie).backdrop;
         const moviePoster = getMovieAssets(movie).poster;
         const movieDate = new Date(movie.release_date);
-        const response = yield getReviews(movie.id);
-        if (!response.ok)
+        const getReviewsresponse = yield getReviews(movie.id);
+        if (!getReviewsresponse.ok)
             return false;
-        const reviewsResponse = yield response.json();
+        const reviewsResponse = yield getReviewsresponse.json();
+        const getSimilarresponse = yield getSimilar(movie.id);
+        if (!getSimilarresponse.ok)
+            return false;
+        const similarResponse = yield getSimilarresponse.json();
         const htmlString = `
         <div class="movie-infobox">
             <div class="container container--sm">
@@ -240,6 +292,7 @@
                         </div>
                     </div>
                     ${renderReviews(reviewsResponse.results)}
+                    ${renderSimilar(similarResponse.results)}
                 </div>
             </div>
         </div>
@@ -264,7 +317,6 @@
         var _a;
         const tabs = [];
         movieTabs.forEach((tab, index) => {
-            console.log(reviews.length);
             if (tab == 'Reviews' && reviews.length < 2)
                 return;
             const htmlString = `
@@ -292,9 +344,7 @@
         if (movieInfoboxElement) {
             movieInfoboxElement.classList.remove('is-active');
             (_a = document.querySelector('html')) === null || _a === void 0 ? void 0 : _a.classList.remove('is-infobox-active');
-            setTimeout(() => {
-                movieInfoboxElement.innerHTML = '';
-            }, 400);
+            movieInfoboxElement.innerHTML = '';
         }
     };
 
@@ -355,6 +405,8 @@
             return false;
         const response = yield movieDetailsResponse.json();
         const infoboxContent = yield buildMovieInfobox(response);
+        //Close previus infobox
+        closeInfobox();
         movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.append(infoboxContent);
         movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.classList.add('is-active');
         (_a = document.querySelector('html')) === null || _a === void 0 ? void 0 : _a.classList.add('is-infobox-active');

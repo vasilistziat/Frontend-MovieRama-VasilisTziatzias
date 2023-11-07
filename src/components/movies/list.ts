@@ -58,6 +58,9 @@ export const handleMovieClick = async (event: Event) => {
     const response = await movieDetailsResponse.json();
     const infoboxContent = await buildMovieInfobox(response);
 
+    //Close previus infobox
+    closeInfobox();
+
     movieInfoboxElement?.append(infoboxContent as Element);
     movieInfoboxElement?.classList.add('is-active');
     document.querySelector('html')?.classList.add('is-infobox-active');
