@@ -736,8 +736,13 @@ img {
 }
 #movie-details .movie-infobox__content .tab-content .trailers {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   gap: 16px;
+}
+@media screen and (min-width: 680px) {
+  #movie-details .movie-infobox__content .tab-content .trailers {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 #movie-details .movie-infobox__content .tab-content .similar-list {
   display: flex;
