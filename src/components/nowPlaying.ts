@@ -1,7 +1,7 @@
 import nowPlaying from '../requests/nowPlaying';
 import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
 import { Movie } from '../types/movie';
-import { buildMovies } from './movies/buildList';
+import { buildMovies } from './movies/list';
 
 export default async function renderMovies(pagenumber?: number) {
     const nowPlayingWrapper = document.querySelector('[data-movies-list]')!;

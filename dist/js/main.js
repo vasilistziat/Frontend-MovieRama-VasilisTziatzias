@@ -328,6 +328,7 @@
                             <i class="fa-regular fa-star empty"></i>
                             <i class="fa-solid fa-star full" style="width: ${rating}%"></i>
                         </div>
+                        <span class="movie-rating__number">${movie.vote_average.toFixed(1)}</span>
                     </div>
                     ${poster.image}
                     <div class="movie-info">

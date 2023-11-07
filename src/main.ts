@@ -4,7 +4,7 @@ import './scss/bundle.scss';
 import renderMovies from './components/nowPlaying';
 import initInfiniteScroll from './components/infiniteScroll';
 import { initSearch } from 'components/search';
-import { handleMovieClick } from 'components/movies/buildList';
+import { handleMovieClick } from 'components/movies/list';
 
 renderMovies();
 initSearch();

@@ -2,7 +2,7 @@ import { getSearch } from 'requests/search';
 import renderMovies from './nowPlaying';
 import { removeSkeletonCards, renderSkeletonCards } from './skeleton';
 import { Movie } from 'types/movie';
-import { buildMovies } from './movies/buildList';
+import { buildMovies } from './movies/list';
 
 let abortController = new AbortController();
 const moviesListElement = document.querySelector('[data-movies-list]');

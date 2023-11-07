@@ -496,16 +496,17 @@ img {
   position: absolute;
   top: 0;
   left: 0;
-  width: 42px;
-  height: 42px;
+  width: 54px;
+  height: 54px;
   background: rgba(0, 0, 0, 0.5);
   border-bottom-right-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 }
 .movie-card .movie-rating__stars {
-  position: absolute;
+  position: relative;
   width: 24px;
   height: 24px;
   color: #62b693;
@@ -521,6 +522,12 @@ img {
 .movie-card .movie-rating__stars > i.full {
   width: 0%;
   font-size: 24px;
+}
+.movie-card .movie-rating__number {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 4px;
 }
 
 #movie-details {

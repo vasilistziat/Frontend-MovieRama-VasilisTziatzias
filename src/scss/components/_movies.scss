@@ -109,17 +109,17 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 42px;
-        height: 42px;
+        width: 54px;
+        height: 54px;
         background: rgba(0, 0, 0, 0.5);
         border-bottom-right-radius: 4px;
-
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-direction: column;
 
         &__stars {
-            position: absolute;
+            position: relative;
             width: 24px;
             height: 24px;
             color: $primary_color;
@@ -138,6 +138,13 @@
                     font-size: 24px;
                 }
             }
+        }
+
+        &__number {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 4px;
         }
     }
 }
