@@ -6,14 +6,16 @@ import initInfiniteScroll from './components/infiniteScroll';
 import { initSearch } from 'components/search';
 import { handleMovieClick } from 'components/movies/list';
 
-renderMovies();
-initSearch();
-initInfiniteScroll();
-
-document.addEventListener('click', (event) => {
-    document.querySelectorAll('[data-movie-id]').forEach((targetElement) => {
-        if (targetElement === event.target) {
-            handleMovieClick(event);
-        }
+renderMovies().then(() => {
+    initSearch();
+    initInfiniteScroll();
+    document.addEventListener('click', (event) => {
+        document
+            .querySelectorAll('[data-movie-id]')
+            .forEach((targetElement) => {
+                if (targetElement === event.target) {
+                    handleMovieClick(event);
+                }
+            });
     });
 });

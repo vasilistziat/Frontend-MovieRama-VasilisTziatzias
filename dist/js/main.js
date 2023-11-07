@@ -407,6 +407,8 @@
         const infoboxContent = yield buildMovieInfobox(response);
         //Close previus infobox
         closeInfobox();
+        if (!infoboxContent)
+            return;
         movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.append(infoboxContent);
         movieInfoboxElement === null || movieInfoboxElement === void 0 ? void 0 : movieInfoboxElement.classList.add('is-active');
         (_a = document.querySelector('html')) === null || _a === void 0 ? void 0 : _a.classList.add('is-infobox-active');
@@ -436,10 +438,10 @@
                 if (!nowPlayingResponse.ok)
                     return false;
                 const response = yield nowPlayingResponse.json();
-                removeSkeletonCards(nowPlayingWrapper);
                 const data = response.results;
                 const buildMoviesList = yield buildMovies(data);
                 nowPlayingWrapper.append(...buildMoviesList);
+                removeSkeletonCards(nowPlayingWrapper);
             }
             catch (error) {
                 console.error(error);
@@ -537,7 +539,7 @@
         const options = {
             root: null,
             rootMargin: '0px',
-            threshold: 0
+            threshold: 1
         };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
@@ -569,14 +571,17 @@
     }
 
     //Rollup need this in order to watch scss
-    renderMovies();
-    initSearch();
-    initInfiniteScroll();
-    document.addEventListener('click', (event) => {
-        document.querySelectorAll('[data-movie-id]').forEach((targetElement) => {
-            if (targetElement === event.target) {
-                handleMovieClick(event);
-            }
+    renderMovies().then(() => {
+        initSearch();
+        initInfiniteScroll();
+        document.addEventListener('click', (event) => {
+            document
+                .querySelectorAll('[data-movie-id]')
+                .forEach((targetElement) => {
+                if (targetElement === event.target) {
+                    handleMovieClick(event);
+                }
+            });
         });
     });
 

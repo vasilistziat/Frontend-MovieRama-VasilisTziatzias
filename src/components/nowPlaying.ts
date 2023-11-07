@@ -14,10 +14,10 @@ export default async function renderMovies(pagenumber?: number) {
 
         const response = await nowPlayingResponse.json();
 
-        removeSkeletonCards(nowPlayingWrapper);
         const data = response.results as Movie[];
         const buildMoviesList = await buildMovies(data);
         nowPlayingWrapper.append(...buildMoviesList);
+        removeSkeletonCards(nowPlayingWrapper);
     } catch (error) {
         console.error(error);
     }

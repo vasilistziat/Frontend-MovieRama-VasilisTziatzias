@@ -61,6 +61,8 @@ export const handleMovieClick = async (event: Event) => {
     //Close previus infobox
     closeInfobox();
 
+    if (!infoboxContent) return;
+
     movieInfoboxElement?.append(infoboxContent as Element);
     movieInfoboxElement?.classList.add('is-active');
     document.querySelector('html')?.classList.add('is-infobox-active');
